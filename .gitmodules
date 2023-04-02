@@ -1,0 +1,3 @@
+[submodule "static/CV"]
+	path = CV
+	url = git@github.com:Akulen/CV.git

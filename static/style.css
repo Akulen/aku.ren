@@ -125,3 +125,44 @@ main::after {
     }
 }
 
+.table.cv .bar div { 
+    width: 100%; 
+    text-align: center; 
+    border-bottom: 9px solid rgb(35%, 70%, 30%); /* from moderncv green */
+    line-height: 0.1em;
+    margin: 10px 0 20px; 
+}
+
+.table.cv tbody td, .table.cv th {
+    padding: 0.25rem 0.75rem;
+    border: none;
+}
+
+.table.cv th.bar {
+    padding: 0.25rem 0;
+    width: 122px;
+    border: none;
+}
+
+.table.cv thead {
+    color: rgb(35%, 70%, 30%); /* from moderncv green */
+}
+
+.table.cv tbody th {
+    font-weight: normal;
+    white-space: nowrap;
+    text-align: right;
+}
+
+.table.cv .bordertop {
+    border-top: 2px solid #dee2e6;
+}
+
+.table.cv span.experience {
+    float: right;
+    font-style: italic;
+}
+
+.table.cv a {
+    text-decoration: none;
+}

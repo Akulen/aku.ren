@@ -11,6 +11,14 @@ python -m venv venv
 pip install -r requirements.txt
 ```
 
+You should probably also run the CV submodule to populate the publications and CV pages
+```bash
+cd CV
+make pdf
+make html
+make clean
+```
+
 ## Configuring the server
 
 For an apache2 server on debian, mod_wsgi is required.
