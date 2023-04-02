@@ -17,3 +17,7 @@ def cv():
 @app.route("/algo")
 def algo():
     return render_template('algo.html')
+
+@app.route("/sd")
+def sd():
+    return render_template('sd.html')

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block subtitle %}Stable Diffusion{% endblock %}
+
+{% macro image_gallery(id, images) %}
+    <div class="row">
+    {% for img in images %}
+    {% if loop.index > 3 and loop.index % 3 == 1 %}
+    </div>
+    <div class="row">
+    {% endif %}
+    <a href="{{ img }}" data-toggle="lightbox" data-gallery="gallery-{{ id }}" class="col-sm-4" style="padding: 12px;">
+        <img src="{{ img }}" class="img-fluid" />
+    </a>
+    {% endfor %}
+    </div>
+{% endmacro %}
+
+{% block body %}
+    <h1>Stable Diffusion</h1>
+    <p>
+    Experiments with Stable Diffusion
+    </p>
+
+    <h3>New logo</h3>
+    <p>
+    Attempts to inspire/make a new logo. Kagamine Rin should be Kagamine Len, but Anything V3 can't figure out the difference.
+    </p>
+
+{{ image_gallery("newLogo", [
+     url_for('static', filename='sd/logo_spiky.png'),
+     url_for('static', filename='sd/logo_rough_sketch.png'),
+     url_for('static', filename='sd/logo_two_rins.png'),
+     url_for('static', filename='sd/logo_bunched.png'),
+]) }}
+
+    <h3>Backgrounds</h3>
+    <p>
+    Generated backgrounds
+    </p>
+
+{{ image_gallery("backgrounds", [
+     url_for('static', filename='sd/bg_cat_pilot.png'),
+     url_for('static', filename='sd/bg_misaka_miko.png'),
+]) }}
+{% endblock %}
+
+{% block extrabody %}
+<script src="https://cdn.jsdelivr.net/npm/bs5-lightbox@1.8.3/dist/index.bundle.min.js">
+</script>
+<script>
+const options = {
+	size: 'lg'
+};
+
+document.querySelectorAll(Lightbox.defaultSelector).forEach((el) => {
+    el.removeEventListener('click', Lightbox.initialize);
+    el.addEventListener('click', (e) => {
+        e.preventDefault();
+        const lightbox = new Lightbox(el, options);
+        lightbox.show();
+    });
+});
+</script>
+{% endblock %}
