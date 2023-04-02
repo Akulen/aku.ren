@@ -1,0 +1,127 @@
+main {
+    margin-top: 2em;
+    padding: 0 1em 0 1em;
+    max-width: 925px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/*
+main div {
+    border: gray;
+    border-style: solid;
+    border-width: 1px;
+}
+*/
+
+main::after {
+    clear: both;
+    content: "";
+    display: table;
+}
+
+.sidebar {
+    margin-bottom: 1em;
+    font-size: 15px;
+}
+
+.author_avatar {
+    display: table-cell;
+    vertical-align: top;
+    width: 48px;
+}
+
+.author_avatar img {
+    border-radius: 10%;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    -ms-interpolation-mode: nearest-neighbor;
+    image-rendering: pixelated;
+}
+
+.author_content {
+    display: table-cell;
+    vertical-align: top;
+    padding-left: 15px;
+    padding-right: 25px;
+    line-height: 1;
+}
+
+.author_content h3, .author_content p {
+    margin: 0;
+}
+
+/* TODO: add way to see these on small screens */
+.author_urls {
+    display: none;
+}
+
+.author_urls ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.author_urls li {
+    white-space: nowrap;
+    margin-bottom: 0.5em;
+}
+
+.author_urls a {
+    display: block;
+    margin-bottom: 5px;
+    padding-right: 5px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    color: inherit;
+    font-size: 1em;
+    text-decoration: none;
+}
+
+@media (min-width: 768px) {
+    .sidebar {
+        width: 134px;
+        float: left;
+        position: sticky;
+        top: 2em;
+        padding: 0;
+    }
+
+    .page {
+        width: 80%;
+        float: right;
+    }
+
+    .author_avatar {
+        display: block;
+        width: 100%;
+    }
+
+    .author_avatar img {
+        width: 100%;
+        padding: 5px;
+        border: 2px solid #657b83;
+    }
+
+    .author_content {
+        display: block;
+        padding: 0;
+        line-height: 22.5px;
+    }
+
+    .author_content h3 {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+    .author_content p {
+        margin-top: 10px;
+        margin-bottom: 20px;
+    }
+
+    .author_urls {
+        display: block;
+    }
+}
+
