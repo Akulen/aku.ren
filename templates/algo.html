@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block subtitle %}Algorithmics{% endblock %}
+
+{% block extrahead %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='prism.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='prism-solarized.css') }}">
+{% endblock extrahead %}
+
+{% block body %}
+    <!-- <h3>Projects</h3>
+
+    <p>
+    TODO
+    </p> -->
+
+    <h3><a style="text-decoration: none; color: rgb(33, 37, 41);" href="https://icpc.global/">ICPC</a></h3>
+
+    <p>
+        <a type="button" class="btn btn-outline-dark" href="https://github.com/twal/acm-book">
+            Book - TWal
+        </a>
+    </p>
+
+    <h3>Small codes</h3>
+
+    {% set codes = [
+        ('cookie.py', '''
+Python code computing the maximal number of unmarked cells in a NxM grid with at least 3 marked cells among its 8 neighbors
+        ''', '''
+Time complexity: \(O(m 2^{3n})\)<br />
+There is a solution in \(O(nm 2^{2n+3})\)
+The resulting sequences for \(N\\times N\) grids and \(N\\times(N+1)\) grids can be found at ??? and ???
+        '''),
+        ('template.cpp', '''
+Competitive Programming C++ Template
+        ''', '''
+        '''),
+    ] %}
+
+    <div class="accordion accordion-flush accordion-code">
+        {% for file, caption, more in codes %}
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading{{ file }}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ file }}" aria-expanded="false" aria-controls="collapse{{ file }}">
+                        {{ caption }}
+                    </button>
+                </h2>
+                <div id="collapse{{ file }}" class="accordion-collapse collapse " aria-labelledby="heading{{ file }}" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        <pre class="line-numbers match-braces" data-src="{{ url_for('static', filename='algo/' + file) }}" data-download-link></pre>
+                        <p>
+                            {{ more|safe }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        <! TODO: https://oeis.org/A330671 -->
+    </div>
+
+{% endblock %}
+
+{% block extrabody %}
+    <script src="{{ url_for('static', filename='prism.js') }}"></script>
+    {% include 'mathjax.html' %}
+{% endblock extrabody %}

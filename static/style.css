@@ -24,6 +24,10 @@ main::after {
     display: table;
 }
 
+.bg-dark {
+    background-color: #343a40!important
+}
+
 .sidebar {
     margin-bottom: 1em;
     font-size: 15px;
@@ -169,4 +173,36 @@ main::after {
 
 .table.cv a {
     text-decoration: none;
+}
+
+.code-toolbar {
+    font-size: 12.5px;
+}
+
+.code-toolbar pre::-webkit-scrollbar-track
+{
+	background-color: #002b36;
+}
+
+.code-toolbar pre::-webkit-scrollbar
+{
+	width: 3px;
+	background-color: #002b36;
+}
+
+.code-toolbar pre::-webkit-scrollbar-thumb
+{
+	background-color: #839496;
+}
+
+.code-toolbar pre {
+    height: 90vh;
+}
+
+a.show-spoiler {
+    text-decoration: none;
+}
+
+.accordion-code .accordion-body {
+    padding: 16px 5px;
 }

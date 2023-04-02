@@ -13,3 +13,7 @@ def publications():
 @app.route("/cv")
 def cv():
     return render_template('cv.html')
+
+@app.route("/algo")
+def algo():
+    return render_template('algo.html')
