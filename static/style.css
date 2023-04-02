@@ -172,6 +172,7 @@ main::after {
 }
 
 .table.cv a {
+    color: #657b83;
     text-decoration: none;
 }
 
