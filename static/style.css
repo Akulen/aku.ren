@@ -1,3 +1,7 @@
+body {
+    overflow-y: overlay;
+}
+
 main {
     margin-top: 2em;
     padding: 0 1em 0 1em;
