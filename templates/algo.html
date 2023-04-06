@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='prism-solarized.css') }}">
 {% endblock extrahead %}
 
+{% macro code(filename) %}
+<pre class="line-numbers match-braces" data-src="{{ url_for('static', filename='algo/' + filename) }}" data-download-link></pre>
+{% endmacro %}
+
 {% block body %}
     <!-- <h3>Projects</h3>
 
@@ -24,34 +28,20 @@
 
     <h3>Small codes</h3>
 
-    {% set codes = [
-        ('cookie.py', '''
-Python code computing the maximal number of unmarked cells in a NxM grid with at least 3 marked cells among its 8 neighbors
-        ''', '''
-Time complexity: \(O(m 2^{3n})\)<br />
-There is a solution in \(O(nm 2^{2n+3})\)
-The resulting sequences for \(N\\times N\) grids and \(N\\times(N+1)\) grids can be found at ??? and ???
-        '''),
-        ('template.cpp', '''
-Competitive Programming C++ Template
-        ''', '''
-        '''),
-    ] %}
-
     <div class="accordion accordion-flush accordion-code">
-        {% for file, caption, more in codes %}
+        {% for algo in algos %}
             <div class="accordion-item">
-                <h2 class="accordion-header" id="heading{{ file }}">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ file }}" aria-expanded="false" aria-controls="collapse{{ file }}">
-                        {{ caption }}
+                <h2 class="accordion-header" id="heading{{ algo.name }}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ algo.name }}" aria-expanded="false" aria-controls="collapse{{ algo.name }}">
+                        <a href="{{ url_for('algo', name=algo.name) }}">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </a>
+                        {{ algo.title }}
                     </button>
                 </h2>
-                <div id="collapse{{ file }}" class="accordion-collapse collapse " aria-labelledby="heading{{ file }}" data-bs-parent="#accordionExample">
+                <div id="collapse{{ algo.name }}" class="accordion-collapse collapse " aria-labelledby="heading{{ algo.name }}" data-bs-parent="#accordionExample">
                     <div class="accordion-body">
-                        <pre class="line-numbers match-braces" data-src="{{ url_for('static', filename='algo/' + file) }}" data-download-link></pre>
-                        <p>
-                            {{ more|safe }}
-                        </p>
+                        {{ algo.content|render_jinja|safe }}
                     </div>
                 </div>
             </div>

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block subtitle %}{{ algo.short_title }}{% endblock %}
+
+{% block extrahead %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='prism.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='prism-solarized.css') }}">
+{% endblock extrahead %}
+
+{% macro code(filename) %}
+<pre class="line-numbers match-braces" data-src="{{ url_for('static', filename='algo/' + filename) }}" data-download-link></pre>
+{% endmacro %}
+
+{% block body %}
+<h2>{{ algo.title }}</h2>
+
+{{ algo.content|render_jinja|safe }}
+{% endblock %}
+
+{% block extrabody %}
+    <script src="{{ url_for('static', filename='prism.js') }}"></script>
+    {% include 'mathjax.html' %}
+{% endblock extrabody %}
