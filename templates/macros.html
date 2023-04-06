@@ -1,0 +1,27 @@
+{% macro gallery(id, images) %}
+    <div class="row">
+    {% for img in images %}
+        <a href="{{ img }}" data-toggle="lightbox" data-gallery="gallery-{{ id }}" class="col-sm-4" style="padding: 12px;">
+            <img src="{{ img }}" class="img-fluid" />
+        </a>
+    {% endfor %}
+    </div>
+{% endmacro %}
+
+{% macro deck_gallery(id, cards) %}
+    <div class="row">
+    {% for card in cards %}
+        <a href="{{ card.png_img }}" data-toggle="lightbox" data-gallery="gallery-{{ id }}" data-caption="<a href='{{ card.scryfall }}'>{% if card.quantity > 1 %}[{{ card.quantity }}] {% endif %}{{ card.name }}{% if card.lang %} ({{ card.lang }}){% endif %}</a>" class="col-sm-2" style="margin: 3px; padding: 0px;">
+            {% if card.lang %}
+            <div class="ribbon-behind"><span></span></div>
+            <div class="ribbon"><span>{{ card.lang }}</span></div>
+            {% endif %}
+            {% if card.quantity > 1 %}
+            <div class="ribbon-top-behind"><span></span></div>
+            <div class="ribbon-top"><span>{{ card.quantity }}</span></div>
+            {% endif %}
+            <img src="{{ card.normal_img }}" class="img-fluid" />
+        </a>
+    {% endfor %}
+    </div>
+{% endmacro %}

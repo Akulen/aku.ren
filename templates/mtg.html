@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block subtitle %}MtG{% endblock %}
+
+{% from "macros.html" import deck_gallery %}
+
+{% block body %}
+    <div class="accordion accordion-flush accordion-code">
+        {% for deck, cards in decks.items() %}
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading{{ deck }}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ deck }}" aria-expanded="false" aria-controls="collapse{{ deck }}">
+                        <a href="{{ url_for('mtg_deck', deck=deck) }}">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </a>
+                        {{ deck[0]|upper }}{{ deck[1:] }}
+                    </button>
+                </h2>
+                <div id="collapse{{ deck }}" class="accordion-collapse collapse " aria-labelledby="heading{{ deck }}" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        {{ deck_gallery(deck, cards) }}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block extrabody %}
+<script src="https://cdn.jsdelivr.net/npm/bs5-lightbox@1.8.3/dist/index.bundle.min.js">
+</script>
+<script>
+const options = {
+	size: 'lg'
+};
+
+document.querySelectorAll(Lightbox.defaultSelector).forEach((el) => {
+    el.removeEventListener('click', Lightbox.initialize);
+    el.addEventListener('click', (e) => {
+        e.preventDefault();
+        const lightbox = new Lightbox(el, options);
+        lightbox.show();
+    });
+});
+</script>
+{% endblock %}

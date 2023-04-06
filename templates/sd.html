@@ -2,19 +2,7 @@
 
 {% block subtitle %}Stable Diffusion{% endblock %}
 
-{% macro image_gallery(id, images) %}
-    <div class="row">
-    {% for img in images %}
-    {% if loop.index > 3 and loop.index % 3 == 1 %}
-    </div>
-    <div class="row">
-    {% endif %}
-    <a href="{{ img }}" data-toggle="lightbox" data-gallery="gallery-{{ id }}" class="col-sm-4" style="padding: 12px;">
-        <img src="{{ img }}" class="img-fluid" />
-    </a>
-    {% endfor %}
-    </div>
-{% endmacro %}
+{% from "macros.html" import gallery %}
 
 {% block body %}
     <h1>Stable Diffusion</h1>
@@ -27,7 +15,7 @@
     Attempts to inspire/make a new logo. Kagamine Rin should be Kagamine Len, but Anything V3 can't figure out the difference.
     </p>
 
-{{ image_gallery("newLogo", [
+{{ gallery("newLogo", [
      url_for('static', filename='sd/logo_spiky.png'),
      url_for('static', filename='sd/logo_rough_sketch.png'),
      url_for('static', filename='sd/logo_two_rins.png'),
@@ -39,7 +27,7 @@
     Generated backgrounds
     </p>
 
-{{ image_gallery("backgrounds", [
+{{ gallery("backgrounds", [
      url_for('static', filename='sd/bg_cat_pilot.png'),
      url_for('static', filename='sd/bg_misaka_miko.png'),
 ]) }}
