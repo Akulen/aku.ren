@@ -46,6 +46,11 @@ class MtGCards(db.Model):
     large_img = db.Column(db.String(100))
     png_img = db.Column(db.String(100))
     border_img = db.Column(db.String(100))
+    back_small_img = db.Column(db.String(100))
+    back_normal_img = db.Column(db.String(100))
+    back_large_img = db.Column(db.String(100))
+    back_png_img = db.Column(db.String(100))
+    back_border_img = db.Column(db.String(100))
     collector_number = db.Column(db.String(50))
     updated_at = db.Column(db.TIMESTAMP, server_default=func.now(),
                           onupdate=func.current_timestamp())
@@ -62,6 +67,11 @@ class MtGDecks(db.Model):
     finishes = db.Column(db.String(100))
     border_color = db.Column(db.String(50))
     collector_number = db.Column(db.String(50))
+
+def removeQM(s):
+    if isinstance(s, str):
+        return s.split('?')[0]
+    return s
 
 from flask import render_template_string
 from jinja2 import pass_context
@@ -147,6 +157,12 @@ def get_scryfall(cards):
             if 'image_uris' in data:
                 images = data['image_uris']
             else:
+                images = data['card_faces'][1]['image_uris']
+                scryfall.back_small_img = images['small']
+                scryfall.back_normal_img = images['normal']
+                scryfall.back_large_img = images['large']
+                scryfall.back_png_img = images['png']
+                scryfall.back_border_img = images['border_crop']
                 images = data['card_faces'][0]['image_uris']
             scryfall.small_img = images['small']
             scryfall.normal_img = images['normal']
@@ -164,8 +180,10 @@ def get_scryfall(cards):
             'ext_name': ext,
             'lang': scryfall.lang,
             'scryfall': scryfall.scryfall,
-            'normal_img': scryfall.normal_img,
-            'png_img': scryfall.normal_img,
+            'normal_img': removeQM(scryfall.normal_img),
+            'png_img': removeQM(scryfall.normal_img),
+            'back_normal_img': removeQM(scryfall.back_normal_img),
+            'back_png_img': removeQM(scryfall.back_normal_img),
         })
     if db_updated:
         db.session.commit()

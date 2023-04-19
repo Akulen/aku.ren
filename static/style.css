@@ -328,3 +328,13 @@ main::after {
    z-index: -1;
    border: 3px solid #8F0808;
 }
+
+.m-auto-left {
+    margin: auto;
+    margin-right: 50%;
+}
+
+.m-auto-right {
+    margin: auto;
+    margin-left: 50%;
+}

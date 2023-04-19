@@ -11,7 +11,32 @@
 {% macro deck_gallery(id, cards) %}
     <div class="row">
     {% for card in cards %}
-        <a href="{{ card.png_img }}" data-toggle="lightbox" data-gallery="gallery-{{ id }}" data-caption="<a href='{{ card.scryfall }}'>{% if card.quantity > 1 %}[{{ card.quantity }}] {% endif %}{{ card.name }}{% if card.lang %} ({{ card.lang }}){% endif %}</a>" class="col-sm-2" style="margin: 3px; padding: 0px;">
+        <a
+            {% if card.back_png_img %}
+                href="#"
+                data-src='
+                <img
+                    src="{{ card.png_img }}"
+                    class="d-block mw-100 mh-100 h-auto w-auto m-auto-left top-0 end-0 bottom-0 start-0 img-fluid"
+                    style="z-index: 1; object-fit: contain;"
+                >
+                <img
+                    src="{{ card.back_png_img }}"
+                    class="d-block mw-100 mh-100 h-auto w-auto m-auto-right top-0 end-0 bottom-0 start-0 img-fluid"
+                    style="z-index: 1; object-fit: contain;"
+                >
+                <!--?caption=<a href="{{ card.scryfall|replace('?', '%3F') }}">{% if card.quantity > 1 %}[{{ card.quantity }}] {% endif %}{{ card.name }}{% if card.lang %} ({{ card.lang }}){% endif %}</a>&-->
+                '
+                data-type="html"
+            {% else %}
+                href="{{ card.png_img }}"
+                data-caption="<a href='{{ card.scryfall }}'>{% if card.quantity > 1 %}[{{ card.quantity }}] {% endif %}{{ card.name }}{% if card.lang %} ({{ card.lang }}){% endif %}</a>"
+            {% endif %}
+            data-toggle="lightbox"
+            data-gallery="gallery-{{ id }}"
+            class="col-sm-2"
+            style="margin: 3px; padding: 0px;"
+        >
             {% if card.lang %}
             <div class="ribbon-behind"><span></span></div>
             <div class="ribbon"><span>{{ card.lang }}</span></div>
