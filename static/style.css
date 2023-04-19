@@ -338,3 +338,19 @@ main::after {
     margin: auto;
     margin-left: 50%;
 }
+
+.mtg-battle {
+    transform: rotate(90deg) scale(0.85);
+}
+
+.mtg-battle-back {
+    transform: scale(0.85);
+}
+
+.mtg-battle.m-auto-left {
+    margin-right: 47%;
+}
+
+.mtg-battle-back.m-auto-right {
+    margin-left: 54%;
+}

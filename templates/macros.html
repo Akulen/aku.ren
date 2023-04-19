@@ -17,12 +17,12 @@
                 data-src='
                 <img
                     src="{{ card.png_img }}"
-                    class="d-block mw-100 mh-100 h-auto w-auto m-auto-left top-0 end-0 bottom-0 start-0 img-fluid"
+                    class="d-block mw-100 mh-100 h-auto w-auto m-auto-left top-0 end-0 bottom-0 start-0 img-fluid{% if card.battle %} mtg-battle{% endif %}"
                     style="z-index: 1; object-fit: contain;"
                 >
                 <img
                     src="{{ card.back_png_img }}"
-                    class="d-block mw-100 mh-100 h-auto w-auto m-auto-right top-0 end-0 bottom-0 start-0 img-fluid"
+                    class="d-block mw-100 mh-100 h-auto w-auto m-auto-right top-0 end-0 bottom-0 start-0 img-fluid{% if card.battle %} mtg-battle-back{% endif %}"
                     style="z-index: 1; object-fit: contain;"
                 >
                 <!--?caption=<a href="{{ card.scryfall|replace('?', '%3F') }}">{% if card.quantity > 1 %}[{{ card.quantity }}] {% endif %}{{ card.name }}{% if card.lang %} ({{ card.lang }}){% endif %}</a>&-->

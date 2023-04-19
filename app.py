@@ -41,6 +41,7 @@ class MtGCards(db.Model):
     finishes = db.Column(db.String(100))
     border_color = db.Column(db.String(50))
     scryfall = db.Column(db.String(100))
+    battle = db.Column(db.Boolean())
     small_img = db.Column(db.String(100))
     normal_img = db.Column(db.String(100))
     large_img = db.Column(db.String(100))
@@ -154,6 +155,9 @@ def get_scryfall(cards):
                 )
             scryfall.ext_name = data['set_name']
             scryfall.scryfall = data['scryfall_uri']
+            if 'type_line' in data:
+                if 'Battle' in data['type_line'].split('—')[0].split('//')[0]:
+                    scryfall.battle = True
             if 'image_uris' in data:
                 images = data['image_uris']
             else:
@@ -180,6 +184,7 @@ def get_scryfall(cards):
             'ext_name': ext,
             'lang': scryfall.lang,
             'scryfall': scryfall.scryfall,
+            'battle': scryfall.battle,
             'normal_img': removeQM(scryfall.normal_img),
             'png_img': removeQM(scryfall.normal_img),
             'back_normal_img': removeQM(scryfall.back_normal_img),
