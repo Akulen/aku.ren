@@ -17,6 +17,13 @@ cd CV
 make pdf
 make html
 make clean
+cd ..
+```
+
+And create the pdf directories
+```
+mkdir static/pdfs
+mkdir static/pdfs/{papers,slides}
 ```
 
 ## Configuring the server

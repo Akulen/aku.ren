@@ -2,7 +2,7 @@ import os
 import datetime
 import requests
 import time
-from flask import Flask, render_template, url_for, redirect
+from flask import Flask, render_template, url_for, redirect, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy.sql import func
@@ -223,6 +223,16 @@ def mtg_deck(deck=None):
                 deck['cards'][card['ext_name']].append(card)
             return render_template('mtg_deck.html', deck=deck)
     return redirect(url_for('mtg'))
+
+@app.route('/slides/<year>/<month>/<slides>.pdf')
+def get_slides(year, month, slides):
+    return send_from_directory('static/pdfs/slides',
+                               f'{year}_{month}_{slides}.pdf')
+
+@app.route('/paper/<year>/<month>/<publisher>/<paper>.pdf')
+def get_paper(year, month, publisher, paper):
+    return send_from_directory('static/pdfs/papers',
+                               f'{year}_{month}_{publisher}_{paper}.pdf')
 
 
 
