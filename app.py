@@ -229,7 +229,7 @@ def mtg_deck(deck=None):
 @app.route('/slides/<year>/', defaults={'month': None})
 @app.route('/slides/<year>/<month>/')
 def slides(year, month):
-    slides = os.listdir('static/pdfs/slides')
+    slides = os.listdir(os.path.join(basedir, 'static/pdfs/slides'))
     pdfs = {}
     for slide in slides:
         if year is not None and slide[:4] != year:
@@ -256,7 +256,7 @@ def slides(year, month):
 @app.route('/papers/<year>/<month>/', defaults={'publisher': None})
 @app.route('/papers/<year>/<month>/<publisher>/')
 def papers(year, month, publisher):
-    papers = os.listdir('static/pdfs/papers')
+    papers = os.listdir(os.path.join(basedir, 'static/pdfs/papers'))
     pdfs = {}
     for paper in papers:
         if year is not None and paper[:4] != year:
