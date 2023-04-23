@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block subtitle %}{{ category }}{% endblock %}
+
+{% block body %}
+{% for year, pdfs in pdfs.items() %}
+<table class="table cv">
+    <thead>
+        <tr>
+            <th class="bar" scope="col"><div></div></th>
+            <th scope="col"><h3>{{ year }}</h3></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for month, pdfs in pdfs.items() %}
+        {% for link, pdf in pdfs %}
+        <tr>
+            <th scope="row">{{ month }}</th>
+            <td><a href="{{ link }}">{{ pdf }}</a></td>
+        </tr>
+        {% endfor %}
+    {% endfor %}
+    </tbody>
+</table>
+{% endfor %}
+{% endblock %}

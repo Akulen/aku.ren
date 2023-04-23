@@ -1,4 +1,5 @@
 import os
+import calendar
 import datetime
 import requests
 import time
@@ -223,6 +224,63 @@ def mtg_deck(deck=None):
                 deck['cards'][card['ext_name']].append(card)
             return render_template('mtg_deck.html', deck=deck)
     return redirect(url_for('mtg'))
+
+@app.route('/slides/', defaults={'year': None, 'month': None})
+@app.route('/slides/<year>/', defaults={'month': None})
+@app.route('/slides/<year>/<month>/')
+def slides(year, month):
+    slides = os.listdir('static/pdfs/slides')
+    pdfs = {}
+    for slide in slides:
+        if year is not None and slide[:4] != year:
+            continue
+        cur_year = slide[:4]
+        if month is not None and slide[5:7] != month:
+            continue
+        cur_month = slide[5:7]
+        if cur_year not in pdfs:
+            pdfs[cur_year] = {}
+        if calendar.month_abbr[int(cur_month)] not in pdfs[cur_year]:
+            pdfs[cur_year][calendar.month_abbr[int(cur_month)]] = []
+        pdfs[cur_year][calendar.month_abbr[int(cur_month)]].append((
+            url_for('get_slides', 
+                    year=cur_year,
+                    month=cur_month,
+                    slides=slide[8:-4]),
+            ' '.join(slide[8:].split('_'))
+        ))
+    return render_template('pdfs.html', category='Slides', pdfs=pdfs)
+
+@app.route('/papers/', defaults={'year': None, 'month': None, 'publisher': None})
+@app.route('/papers/<year>/', defaults={'month': None, 'publisher': None})
+@app.route('/papers/<year>/<month>/', defaults={'publisher': None})
+@app.route('/papers/<year>/<month>/<publisher>/')
+def papers(year, month, publisher):
+    papers = os.listdir('static/pdfs/papers')
+    pdfs = {}
+    for paper in papers:
+        if year is not None and paper[:4] != year:
+            continue
+        cur_year = paper[:4]
+        if month is not None and paper[5:7] != month:
+            continue
+        cur_month = paper[5:7]
+        if publisher is not None and not paper[8:].startswith(publisher):
+            continue
+        cur_publisher = paper[8:].split('_')[0]
+        if cur_year not in pdfs:
+            pdfs[cur_year] = {}
+        if calendar.month_abbr[int(cur_month)] not in pdfs[cur_year]:
+            pdfs[cur_year][calendar.month_abbr[int(cur_month)]] = []
+        pdfs[cur_year][calendar.month_abbr[int(cur_month)]].append((
+            url_for('get_paper',
+                    year=cur_year,
+                    month=cur_month,
+                    publisher=cur_publisher,
+                    paper='_'.join(paper[8:-4].split('_')[1:])),
+            ' '.join(paper[8:].split('_'))
+        ))
+    return render_template('pdfs.html', category='Papers', pdfs=pdfs)
 
 @app.route('/slides/<year>/<month>/<slides>.pdf')
 def get_slides(year, month, slides):
