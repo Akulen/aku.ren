@@ -195,8 +195,8 @@ def get_scryfall(cards):
         db.session.commit()
     return scry_cards
 
-@app.route("/mtg")
-def mtg():
+@app.route("/mtg/decks")
+def mtg_deck_list():
     cards = MtGDecks.query.all()
     decks = set([card.deck for card in cards])
     decks = {
@@ -207,7 +207,7 @@ def mtg():
         decks[card['deck']].append(card)
     return render_template('mtg.html', decks=decks)
 
-@app.route("/mtg/<deck>")
+@app.route("/mtg/decks/<deck>")
 def mtg_deck(deck=None):
     if deck:
         cards = MtGDecks.query.filter_by(deck=deck)
@@ -223,7 +223,7 @@ def mtg_deck(deck=None):
                     deck['cards'][card['ext_name']] = []
                 deck['cards'][card['ext_name']].append(card)
             return render_template('mtg_deck.html', deck=deck)
-    return redirect(url_for('mtg'))
+    return redirect(url_for('mtg_deck_list'))
 
 @app.route('/slides/', defaults={'year': None, 'month': None})
 @app.route('/slides/<year>/', defaults={'month': None})
