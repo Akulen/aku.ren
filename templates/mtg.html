@@ -5,7 +5,7 @@
 {% from "macros.html" import deck_gallery %}
 
 {% block body %}
-    <div class="accordion accordion-flush accordion-code">
+    <div id="decks" class="accordion accordion-flush accordion-code">
         {% for deck, cards in decks.items() %}
             <div class="accordion-item">
                 <h2 class="accordion-header" id="heading{{ deck }}">
@@ -16,7 +16,7 @@
                         {{ deck[0]|upper }}{{ deck[1:] }}
                     </button>
                 </h2>
-                <div id="collapse{{ deck }}" class="accordion-collapse collapse " aria-labelledby="heading{{ deck }}" data-bs-parent="#accordionExample">
+                <div id="collapse{{ deck }}" class="accordion-collapse collapse " aria-labelledby="heading{{ deck }}" data-bs-parent="#decks">
                     <div class="accordion-body">
                         {{ deck_gallery(deck, cards) }}
                     </div>

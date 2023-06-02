@@ -1,5 +1,6 @@
 import os
 import calendar
+import json
 import datetime
 import requests
 import time
@@ -194,6 +195,32 @@ def get_scryfall(cards):
     if db_updated:
         db.session.commit()
     return scry_cards
+
+@app.route("/mtg/gauntlet")
+def mtg_gauntlet():
+    dataPath = os.path.join(
+        basedir,
+        url_for('static', filename='AllCards.json')[1:]
+    )
+    if (datetime.datetime.now() - datetime.datetime.fromtimestamp(
+        os.path.getmtime(dataPath)
+    )) >= datetime.timedelta(days=1):
+        request = 'https://mtgjson.com/api/v5/AtomicCards.json'
+        resp = requests.get(request).json()['data']
+        if len(resp) == 0:
+            raise ErrorNotFound(request)
+        data = {}
+        for card_name, card in resp.items():
+            data[card_name] = []
+            for side in card:
+                data[card_name].append({})
+                for key in ['name', 'faceName', 'manaCost', 'text', 'supertypes', 'types', 'subtypes', 'type', 'colorIdentity', 'power', 'toughness', 'loyalty', 'defense']:
+                    if key in side:
+                        data[card_name][-1][key] = side[key]
+        with open(dataPath, 'w') as f:
+            json.dump(data, f)
+
+    return render_template('mtg_gauntlet.html')
 
 @app.route("/mtg/decks")
 def mtg_deck_list():

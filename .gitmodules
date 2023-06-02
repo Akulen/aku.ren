@@ -1,3 +1,6 @@
 [submodule "static/CV"]
 	path = CV
 	url = git@github.com:Akulen/CV.git
+[submodule "MtGGauntlet"]
+	path = MtGGauntlet
+	url = git@github.com:Akulen/MtGGauntlet.git

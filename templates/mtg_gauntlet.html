@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block subtitle %}MtG - Gauntlet{% endblock %}
+
+{% block extrahead %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='tribute/dist/tribute.css') }}" />
+    <script src="{{ url_for('static', filename='tribute/dist/tribute.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+    <script>
+        let dataPath = '../../static';
+    </script>
+    {% include 'gauntlet_editor.html' %}
+{% endblock %}
+
+{% block extrabody %}
+    <script type='text/javascript' src='{{ url_for('static', filename='gauntlet_editor.js') }}'> </script>
+{% endblock extrabody %}
