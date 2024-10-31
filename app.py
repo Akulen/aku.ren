@@ -56,7 +56,7 @@ class MtGCards(db.Model):
     back_border_img = db.Column(db.String(100))
     collector_number = db.Column(db.String(50))
     updated_at = db.Column(db.TIMESTAMP, server_default=func.now(),
-                          onupdate=func.current_timestamp())
+                           onupdate=func.current_timestamp)
 
 class MtGDecks(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -175,6 +175,7 @@ def get_scryfall(cards):
             scryfall.large_img = images['large']
             scryfall.png_img = images['png']
             scryfall.border_img = images['border_crop']
+            scryfall.updated_at = datetime.datetime.now()
             db.session.add(scryfall)
             db_updated = True
         ext = scryfall.ext_name if scryfall.ext else 'Any Set'
@@ -252,6 +253,22 @@ def mtg_deck(deck=None):
             return render_template('mtg_deck.html', deck=deck)
     return redirect(url_for('mtg_deck_list'))
 
+def sort_pdfs(pdfs):
+    months_order = [
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ]
+    pdfs = dict(sorted(pdfs.items(), reverse=True))
+    for y in pdfs:
+        pdfs[y] = {
+            month: pdfs[y][month]
+            for month in months_order
+            if month in pdfs[y]
+        }
+        for m in pdfs[y]:
+            pdfs[y][m] = sorted(pdfs[y][m])
+    return pdfs
+
 @app.route('/slides/', defaults={'year': None, 'month': None})
 @app.route('/slides/<year>/', defaults={'month': None})
 @app.route('/slides/<year>/<month>/')
@@ -274,8 +291,9 @@ def slides(year, month):
                     year=cur_year,
                     month=cur_month,
                     slides=slide[8:-4]),
-            ' '.join(slide[8:].split('_'))
+            ' '.join(slide[8:].split('_'))[:-4]
         ))
+    pdfs = sort_pdfs(pdfs)
     return render_template('pdfs.html', category='Slides', pdfs=pdfs)
 
 @app.route('/papers/', defaults={'year': None, 'month': None, 'publisher': None})
@@ -300,13 +318,16 @@ def papers(year, month, publisher):
         if calendar.month_abbr[int(cur_month)] not in pdfs[cur_year]:
             pdfs[cur_year][calendar.month_abbr[int(cur_month)]] = []
         pdfs[cur_year][calendar.month_abbr[int(cur_month)]].append((
-            url_for('get_paper',
-                    year=cur_year,
-                    month=cur_month,
-                    publisher=cur_publisher,
-                    paper='_'.join(paper[8:-4].split('_')[1:])),
-            ' '.join(paper[8:].split('_'))
+            url_for(
+                'get_paper',
+                year=cur_year,
+                month=cur_month,
+                publisher=cur_publisher,
+                paper='_'.join(paper[8:-4].split('_')[1:])
+            ),
+            paper[9+len(cur_publisher):-4].replace('_', ' '),
         ))
+    pdfs = sort_pdfs(pdfs)
     return render_template('pdfs.html', category='Papers', pdfs=pdfs)
 
 @app.route('/slides/<year>/<month>/<slides>.pdf')
