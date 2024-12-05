@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block subtitle %}MtG - Random{% endblock %}
+
+{% block body %}
+    <img id="pic" src="#" alt="card_image" style="visibility: hidden;">
+    <script>
+        const api = "https://api.scryfall.com/cards/random?q=lang:{{ lang }}";
+
+        document.body.onload = function() {
+            let xhr = new XMLHttpRequest();
+            xhr.open("GET", api, true);
+            xhr.addEventListener("load", function() {
+                const response = JSON.parse(xhr.response);
+                document.getElementById("pic").src = response.image_uris.large;
+                document.getElementById("pic").alt = response.name;
+                document.getElementById("pic").style.visibility = "visible";
+            });
+            xhr.send();
+        };
+    </script>
+{% endblock %}

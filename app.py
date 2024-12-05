@@ -197,6 +197,11 @@ def get_scryfall(cards):
         db.session.commit()
     return scry_cards
 
+@app.route("/mtg/random")
+@app.route("/mtg/random/<lang>")
+def mtg_random(lang='en'):
+    return render_template('mtg_random.html', lang=lang)
+
 @app.route("/mtg/gauntlet")
 def mtg_gauntlet():
     dataPath = os.path.join(
