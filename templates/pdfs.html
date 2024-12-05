@@ -1,22 +1,33 @@
 {% extends "base.html" %}
 
-{% block subtitle %}{{ category }}{% endblock %}
+{% block subtitle %}{{ category.title() }}{% endblock %}
 
 {% block body %}
+<ul class="nav nav-pills nav-fill">
+    {% for cat in ['papers', 'posters', 'slides'] %}
+    <li class="nav-item">
+        <a class="nav-link{% if cat == category %} active" aria-current="page{% endif %}" href="{{ url_for('pdfs', category=cat) }}">{{ cat.title() }}</a>
+    </li>
+    {% endfor %}
+</ul>
 {% for year, pdfs in pdfs.items() %}
 <table class="table cv">
     <thead>
         <tr>
             <th class="bar" scope="col"><div></div></th>
-            <th scope="col"><h3>{{ year }}</h3></th>
+            <th scope="col"><h3><a href="{{ url_for('pdfs', category=category, year=year) }}">{{ year }}</a></h3></th>
+            <th class="bar" scope="col"></th>
         </tr>
     </thead>
     <tbody>
     {% for month, pdfs in pdfs.items() %}
-        {% for link, pdf in pdfs %}
+        {% for link, pdf, group in pdfs %}
         <tr>
-            <th scope="row">{{ month }}</th>
+            <th scope="row"><a class="black" href="{{ url_for('pdfs', category=category, year=year, month=month) }}">{{ month }}</a></th>
             <td><a href="{{ link }}">{{ pdf }}</a></td>
+            {% if group %}
+            <th scope="row"><a class="black" href="{{ url_for('pdfs', category=category, group=group) }}">[{{ group }}]</a></th>
+            {% endif %}
         </tr>
         {% endfor %}
     {% endfor %}

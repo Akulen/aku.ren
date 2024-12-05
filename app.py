@@ -262,83 +262,80 @@ def sort_pdfs(pdfs):
     for y in pdfs:
         pdfs[y] = {
             month: pdfs[y][month]
-            for month in months_order
+            for month in months_order[::-1]
             if month in pdfs[y]
         }
         for m in pdfs[y]:
             pdfs[y][m] = sorted(pdfs[y][m])
     return pdfs
 
-@app.route('/slides/', defaults={'year': None, 'month': None})
-@app.route('/slides/<year>/', defaults={'month': None})
-@app.route('/slides/<year>/<month>/')
-def slides(year, month):
-    slides = os.listdir(os.path.join(basedir, 'static/pdfs/slides'))
-    pdfs = {}
-    for slide in slides:
-        if year is not None and slide[:4] != year:
+@app.route('/<any(papers,posters,slides):category>/', defaults={
+    'year': None, 'month': None, 'group': None
+})
+@app.route('/<any(papers,posters,slides):category>/<year>/', defaults={
+    'month': None, 'group': None
+})
+@app.route('/<any(papers,posters,slides):category>/<year>/<month>/', defaults={
+    'group': None
+})
+@app.route('/<any(papers,posters):category>/<year>/<month>/<group>/')
+@app.route('/<any(papers,posters):category>/any/any/<group>/', defaults={
+    'year': None, 'month': None
+})
+@app.route('/<any(papers,posters):category>/<year>/any/<group>/', defaults={
+    'month': None
+})
+def pdfs(category, year, month, group):
+    pdfs = os.listdir(os.path.join(basedir, f'static/pdfs/{category}'))
+    pdf_list = {}
+    if month and not month.isnumeric():
+        month = f'{list(calendar.month_abbr).index(month):02}'
+    for pdf in pdfs:
+        if year is not None and pdf[:4] != year:
             continue
-        cur_year = slide[:4]
-        if month is not None and slide[5:7] != month:
+        cur_year = pdf[:4]
+        if month is not None and pdf[5:7] != month:
             continue
-        cur_month = slide[5:7]
-        if cur_year not in pdfs:
-            pdfs[cur_year] = {}
-        if calendar.month_abbr[int(cur_month)] not in pdfs[cur_year]:
-            pdfs[cur_year][calendar.month_abbr[int(cur_month)]] = []
-        pdfs[cur_year][calendar.month_abbr[int(cur_month)]].append((
-            url_for('get_slides', 
-                    year=cur_year,
-                    month=cur_month,
-                    slides=slide[8:-4]),
-            ' '.join(slide[8:].split('_'))[:-4]
-        ))
-    pdfs = sort_pdfs(pdfs)
-    return render_template('pdfs.html', category='Slides', pdfs=pdfs)
-
-@app.route('/papers/', defaults={'year': None, 'month': None, 'publisher': None})
-@app.route('/papers/<year>/', defaults={'month': None, 'publisher': None})
-@app.route('/papers/<year>/<month>/', defaults={'publisher': None})
-@app.route('/papers/<year>/<month>/<publisher>/')
-def papers(year, month, publisher):
-    papers = os.listdir(os.path.join(basedir, 'static/pdfs/papers'))
-    pdfs = {}
-    for paper in papers:
-        if year is not None and paper[:4] != year:
-            continue
-        cur_year = paper[:4]
-        if month is not None and paper[5:7] != month:
-            continue
-        cur_month = paper[5:7]
-        if publisher is not None and not paper[8:].startswith(publisher):
-            continue
-        cur_publisher = paper[8:].split('_')[0]
-        if cur_year not in pdfs:
-            pdfs[cur_year] = {}
-        if calendar.month_abbr[int(cur_month)] not in pdfs[cur_year]:
-            pdfs[cur_year][calendar.month_abbr[int(cur_month)]] = []
-        pdfs[cur_year][calendar.month_abbr[int(cur_month)]].append((
+        cur_month_int = pdf[5:7]
+        cur_month = calendar.month_abbr[int(cur_month_int)]
+        extra_args = {}
+        name_start = 8
+        if category not in ['slides']:
+            if group is not None \
+                    and not pdf[8:].lower().startswith(group.lower()):
+                continue
+            cur_group = pdf[8:].split('_')[0]
+            name_start += len(cur_group) + 1
+            extra_args['group'] = cur_group
+        else:
+            cur_group = None
+        if cur_year not in pdf_list:
+            pdf_list[cur_year] = {}
+        if cur_month not in pdf_list[cur_year]:
+            pdf_list[cur_year][cur_month] = []
+        name = pdf[name_start:-4]
+        pdf_list[cur_year][cur_month].append((
             url_for(
-                'get_paper',
+                'get_pdf',
+                category=category,
                 year=cur_year,
-                month=cur_month,
-                publisher=cur_publisher,
-                paper='_'.join(paper[8:-4].split('_')[1:])
+                month=cur_month_int,
+                name=name,
+                **extra_args
             ),
-            paper[9+len(cur_publisher):-4].replace('_', ' '),
+            name.replace('_', ' '),
+            cur_group,
         ))
-    pdfs = sort_pdfs(pdfs)
-    return render_template('pdfs.html', category='Papers', pdfs=pdfs)
+    pdf_list = sort_pdfs(pdf_list)
+    return render_template('pdfs.html', category=category, pdfs=pdf_list)
 
-@app.route('/slides/<year>/<month>/<slides>.pdf')
-def get_slides(year, month, slides):
-    return send_from_directory('static/pdfs/slides',
-                               f'{year}_{month}_{slides}.pdf')
-
-@app.route('/paper/<year>/<month>/<publisher>/<paper>.pdf')
-def get_paper(year, month, publisher, paper):
-    return send_from_directory('static/pdfs/papers',
-                               f'{year}_{month}_{publisher}_{paper}.pdf')
+@app.route('/<any(papers,posters):category>/<year>/<month>/<group>/<name>.pdf')
+@app.route('/<any(slides):category>/<year>/<month>/<name>.pdf')
+def get_pdf(category, year, month, name, group=None):
+    return send_from_directory(
+        f'static/pdfs/{category}',
+        f"{year}_{month}_{group+'_' if group else ''}{name}.pdf"
+    )
 
 
 
