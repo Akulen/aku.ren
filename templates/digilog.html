@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block subtitle %}DigiLog Clock{% endblock %}
+
+{% block body %}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+        .clock-container {
+            position: relative;
+            width: 240px;
+            height: 240px;
+            border: 3px solid black;
+            border-radius: 50%;
+            background-color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .hour-label {
+            font-family: 'Roboto', sans-serif;
+            position: absolute;
+            font-size: 150px;
+            //color: white;
+        }
+        .clock-control-container {
+            position: relative;
+            width: 240px;
+            height: 50px;
+        }
+        .slider-container {
+            position: absolute;
+            bottom: 10px;
+            width: 80%;
+            display: flex;
+            justify-content: space-between;
+        }
+        .slider {
+            width: 100%;
+        }
+        #speed-label {
+            font-size: 14px;
+        }
+    </style>
+
+<div class="clock-container">
+    <div class="hour-label" id="hourLabel"></div>
+    <canvas id="clockCanvas" width="300" height="300"></canvas>
+</div>
+<div class="clock-control-container">
+    <div class="slider-container">
+        <input type="range" id="speedSlider" class="slider" min="1" max="1440" step="1" value="1">
+    </div>
+    <span id="speed-label">Speed: 1x</span>
+</div>
+
+<script type="text/javascript" src="{{ url_for('static', filename='digilog.js') }}"></script>
+{% endblock %}

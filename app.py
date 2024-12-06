@@ -342,6 +342,10 @@ def get_pdf(category, year, month, name, group=None):
         f"{year}_{month}_{group+'_' if group else ''}{name}.pdf"
     )
 
+@app.route("/digilog")
+def digilog_clock(lang='en'):
+    return render_template('digilog.html', lang=lang)
+
 
 
 
