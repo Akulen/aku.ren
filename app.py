@@ -228,6 +228,37 @@ def mtg_gauntlet():
 
     return render_template('mtg_gauntlet.html')
 
+@app.route("/mtg/cube/<cube>")
+def mtg_cube(cube=None):
+    cubePath = os.path.join(
+        basedir,
+        f"static/CustomCube/{cube}"
+    )
+    if not os.path.isdir(cubePath):
+        raise ErrorNotFound()
+
+    cards = os.listdir(cubePath)
+    cards = sorted([
+        item for item in cards if not item.startswith('.')
+    ])
+
+    card_list = []
+    for card in cards:
+        is_dir = os.path.isdir(os.path.join(cubePath, card))
+
+        if is_dir:
+            continue
+
+        link = url_for('static', filename=f"CustomCube/{cube}/{card}")
+
+        card_list.append({
+            'name': card,
+            'link': link,
+        })
+        print(card, link, card_list)
+
+    return render_template('mtg_cube.html', cube_name=cube, cards=card_list)
+
 @app.route("/mtg/decks")
 def mtg_deck_list():
     cards = MtGDecks.query.all()
