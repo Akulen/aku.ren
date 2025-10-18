@@ -18,6 +18,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] =\
         'sqlite:///' + os.path.join(basedir, 'database.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.jinja_env.add_extension('jinja2.ext.do')
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -189,9 +190,9 @@ def get_scryfall(cards):
             'scryfall': scryfall.scryfall,
             'battle': scryfall.battle,
             'normal_img': removeQM(scryfall.normal_img),
-            'png_img': removeQM(scryfall.normal_img),
+            'png_img': removeQM(scryfall.png_img),
             'back_normal_img': removeQM(scryfall.back_normal_img),
-            'back_png_img': removeQM(scryfall.back_normal_img),
+            'back_png_img': removeQM(scryfall.back_png_img),
         })
     if db_updated:
         db.session.commit()
@@ -259,8 +260,120 @@ def mtg_cube(cube=None):
 
     return render_template('mtg_cube.html', cube_name=cube, cards=card_list)
 
-@app.route("/mtg/decks")
-def mtg_deck_list():
+def sort_decks(decks):
+    months_order = [
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ]
+    decks = dict(sorted(decks.items(), reverse=True))
+    for y in decks:
+        decks[y] = {
+            month: decks[y][month]
+            for month in months_order[::-1]
+            if month in decks[y]
+        }
+        for m in decks[y]:
+            decks[y][m] = dict(sorted(decks[y][m].items(), reverse=True))
+    return decks
+
+def mtg_decks(format, year, month, day):
+    decks = os.listdir(os.path.join(basedir, f'static/mtg/decks'))
+    decks_list = {}
+    if month and not month.isnumeric():
+        month = f'{list(calendar.month_abbr).index(month):02}'
+    for deck in decks:
+        if deck[-3:] != '.mf':
+            continue
+        parts = deck[:-3].split('_')
+        deck_format = parts[0]
+        deck_date = parts[1]
+        deck_name = '_'.join(parts[2:])
+        if format is not None and deck_format != format:
+            continue
+        if year is not None and deck_date[:4] != year:
+            continue
+        cur_year = deck_date[:4]
+        if month is not None and deck_date[5:7] != month:
+            continue
+        cur_month_int = deck_date[5:7]
+        cur_month = calendar.month_abbr[int(cur_month_int)]
+        if day is not None and deck_date[8:10] != day:
+            continue
+        cur_day = deck_date[8:10]
+        if cur_year not in decks_list:
+            decks_list[cur_year] = {}
+        if cur_month not in decks_list[cur_year]:
+            decks_list[cur_year][cur_month] = {}
+        if cur_day not in decks_list[cur_year][cur_month]:
+            decks_list[cur_year][cur_month][cur_day] = []
+        decks_list[cur_year][cur_month][cur_day].append((
+            url_for(
+                'mtg_get_deck',
+                format=deck_format,
+                year=cur_year,
+                month=cur_month_int,
+                day=cur_day,
+                name=deck_name
+            ),
+            deck_format,
+            deck_name.replace('_', ' '),
+        ))
+    print(decks_list)
+    decks_list = sort_decks(decks_list)
+    print(decks_list)
+    return render_template('mtg_decks.html', format=format, decks=decks_list)
+fields = ['format', 'year', 'month', 'day']
+for i in range(2 ** len(fields)):
+    is_field = [(1 << j) & i for j in range(len(fields))]
+    route = '/mtg/decks/' + '/'.join([
+        f'<{field}>' if check else 'any'
+        for field, check in zip(fields, is_field)
+    ]) + '/'
+    while route[-4:] == 'any/':
+        route = route[:-4]
+    defaults = {
+        field: None
+        for field, check in zip(fields, is_field)
+        if not check
+    }
+    mtg_decks = app.route(route, defaults=defaults)(mtg_decks)
+
+@app.route('/mtg/decks/<format>/<year>/<month>/<day>/<name>')
+def mtg_get_deck(format, year, month, day, name):
+    deck_file = f"static/mtg/decks/{format}_{year}-{month}-{day}_{name}.mf"
+    if not os.path.exists(os.path.join(basedir, deck_file)):
+        return redirect(url_for('mtg_decks', format=format, year=year, month=month, day=day))
+    deck = {
+        'name': name.replace('_', ' '),
+        'format': format,
+        'year': year,
+        'month': month,
+        'day': day,
+    }
+    cards = []
+    with open(os.path.join(basedir, deck_file), 'r') as f:
+        for line in f.readlines():
+            if line == 'SIDEBOARD:\n':
+                deck['main'] = cards
+                cards = []
+                continue
+            if line == '\n':
+                continue
+            parts = line.split()
+            qty = int(parts[0])
+            name = ' '.join(parts[1:-2])
+            ext = parts[-2]
+            cn = parts[-1]
+            card = get_scryfall([MtGDecks(
+                name=name, ext=ext[1:-1], collector_number=cn, quantity=qty
+            )])[0]
+            for _ in range(qty):
+                cards.append(card)
+    deck['sideboard'] = cards
+    return render_template('mtg_deck.html', deck=deck)
+
+@app.route("/mtg/wishlist")
+def mtg_wish_list():
     cards = MtGDecks.query.all()
     decks = set([card.deck for card in cards])
     decks = {
@@ -271,8 +384,8 @@ def mtg_deck_list():
         decks[card['deck']].append(card)
     return render_template('mtg.html', decks=decks)
 
-@app.route("/mtg/decks/<deck>")
-def mtg_deck(deck=None):
+@app.route("/mtg/wishlist/<deck>")
+def mtg_wish(deck=None):
     if deck:
         cards = MtGDecks.query.filter_by(deck=deck)
         if cards.first():
@@ -286,8 +399,8 @@ def mtg_deck(deck=None):
                 if card['ext_name'] not in deck['cards']:
                     deck['cards'][card['ext_name']] = []
                 deck['cards'][card['ext_name']].append(card)
-            return render_template('mtg_deck.html', deck=deck)
-    return redirect(url_for('mtg_deck_list'))
+            return render_template('mtg_wish.html', deck=deck)
+    return redirect(url_for('mtg_wish_list'))
 
 def sort_pdfs(pdfs):
     months_order = [

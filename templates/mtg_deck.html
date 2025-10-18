@@ -1,31 +1,101 @@
-{% extends "base.html" %}
+{% extends "simple_base.html" %}
 
-{% block subtitle %}{{ deck.name }}{% endblock %}
+{% block title %}{{ deck.format }} — {{ deck.name }} [{{ deck.year }}/{{ deck.month }}/{{ deck.day }}]{% endblock %}
 
-{% from "macros.html" import deck_gallery %}
+{% block extrahead %}
+<style>
+    .deck-container {
+        border: 1px solid black;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1%;
+        margin: 1%;
+        width: 1920px;
+        height: 852px;
+    }
 
-{% block body %}
-    {% for ext, cards in deck.cards.items() %}
-        <h3>{{ ext }}</h3>
-        {{ deck_gallery(deck.name + ext, cards) }}
-    {% endfor %}
+    .card-column {
+        flex: 5;
+    }
+
+    .sideboard-column {
+        flex: 4;
+    }
+
+    .card-group {
+        position: relative;
+        width: 100%;
+        margin-bottom: -26%;
+    }
+
+    .sideboard-column > .card-group {
+        margin-bottom: -32.5%;
+    }
+
+    .card-group a {
+        margin-right: -20%;
+        width: 40%;
+    }
+    .card-group img {
+        position: relative;
+        width: 100%;
+        height: auto;
+        border-radius: 4.75% 3.5%;
+        box-shadow: 2% 2% 5% rgba(0,0,0,0.3);
+        transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+        will-change: transform, z-index;
+    }
+
+    .sideboard-column > .card-group img {
+        width: 50%;
+        margin-right: -25%;
+    }
+
+    .card-group img:hover {
+        z-index: 100 !important;
+        transform: scale(1.1);
+        box-shadow: 5% 5% 15% rgba(0,0,0,0.5);
+     }
+</style>
 {% endblock %}
 
-{% block extrabody %}
-<script src="https://cdn.jsdelivr.net/npm/bs5-lightbox@1.8.3/dist/index.bundle.min.js">
-</script>
-<script>
-const options = {
-	size: 'lg'
-};
+{% block main %}
+    <div class="deck-container">
+        {% set total_cards = deck.main | length %}
+        {% set cards_per_column = (total_cards / 3 / 4) | round(0, 'ceil') * 4 %}
+        {% set column_break_points = [] %}
+        {% for i in range(3) %}
+            {% set start_index = i * cards_per_column %}
+            {% set end_index = [((i + 1) * cards_per_column), total_cards]|min %}
+            {% do column_break_points.append({'start': start_index | int, 'end': end_index | int}) %}
+        {% endfor %}
 
-document.querySelectorAll(Lightbox.defaultSelector).forEach((el) => {
-    el.removeEventListener('click', Lightbox.initialize);
-    el.addEventListener('click', (e) => {
-        e.preventDefault();
-        const lightbox = new Lightbox(el, options);
-        lightbox.show();
-    });
-});
-</script>
+        {% for column_index in range(3) %}
+            <div class="card-column">
+                {% set start = column_break_points[column_index].start %}
+                {% set end = column_break_points[column_index].end %}
+
+                {% for i in range(start, end, 4) %}
+                    <div class="card-group">
+                        {% for j in range(4) %}
+                            {% set card_index = i + j %}
+                            {% if card_index < total_cards %}
+                            <a href="{{ deck.main[card_index].scryfall }}"><img src="{{ deck.main[card_index].normal_img }}" alt="{{ deck.main[card_index].name }}" /></a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+        <div class="divider" style="width: 0; border-left: 1px solid grey; height: auto"></div>
+        <div class="card-column sideboard-column">
+            {% for i in range(0, deck.sideboard | length, 3) %}
+                <div class="card-group">
+                    {% for card in deck.sideboard[i:i+3] %}
+                        <img src="{{ card.normal_img }}" alt="{{ card.name }}" />
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}

@@ -1,0 +1,42 @@
+{% extends "simple_base.html" %}
+
+{% block title %}Decks{% endblock %}
+
+{% block main %}
+<div style="margin: 0 auto; width: 1000px">
+<h1>MtG Decks</h1>
+<ul class="nav nav-pills nav-fill" style="margin: 0 auto; width: 500px">
+    {% for f in ['Any', 'Legacy', 'Modern'] %}{# TODO: Make this dynamic #}
+    <li class="nav-item">
+        <a class="nav-link{% if format == f or (f == 'Any' and not format) %} active" aria-current="page{% endif %}" href="{{ url_for('mtg_decks', format=None if f == 'Any' else f) }}">{{ f }}</a>
+    </li>
+    {% endfor %}
+</ul>
+{% for year, decks in decks.items() %}
+<table class="table cv" style="width: 1000px">
+    <thead>
+        <tr>
+            <th class="bar" scope="col"><div></div></th>
+            <th scope="col"><h3><a href="{{ url_for('mtg_decks', year=year) }}">{{ year }}</a></h3></th>
+            <th class="bar" scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for month, decks in decks.items() %}
+        {% for day, decks in decks.items() %}
+            {% for link, f, deck in decks %}
+            <tr>
+                <th scope="row"><a class="black" href="{{ url_for('mtg_decks', year=year, month=month) }}">{{ month }}</a></th>
+                <td><a href="{{ link }}">{{ deck }}</a></td>
+                {% if f %}
+                <th scope="row"><a class="black" href="{{ url_for('mtg_decks', format=f) }}">[{{ f }}]</a></th>{# TODO: Add color/image per format #}
+                {% endif %}
+            </tr>
+            {% endfor %}
+        {% endfor %}
+    {% endfor %}
+    </tbody>
+</table>
+{% endfor %}
+</div>
+{% endblock %}

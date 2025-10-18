@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block subtitle %}{{ deck.name }}{% endblock %}
+
+{% from "macros.html" import deck_gallery %}
+
+{% block body %}
+    {% for ext, cards in deck.cards.items() %}
+        <h3>{{ ext }}</h3>
+        {{ deck_gallery(deck.name + ext, cards) }}
+    {% endfor %}
+{% endblock %}
+
+{% block extrabody %}
+<script src="https://cdn.jsdelivr.net/npm/bs5-lightbox@1.8.3/dist/index.bundle.min.js">
+</script>
+<script>
+const options = {
+	size: 'lg'
+};
+
+document.querySelectorAll(Lightbox.defaultSelector).forEach((el) => {
+    el.removeEventListener('click', Lightbox.initialize);
+    el.addEventListener('click', (e) => {
+        e.preventDefault();
+        const lightbox = new Lightbox(el, options);
+        lightbox.show();
+    });
+});
+</script>
+{% endblock %}
