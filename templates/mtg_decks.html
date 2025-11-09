@@ -16,17 +16,29 @@
 <table class="table cv" style="width: 1000px">
     <thead>
         <tr>
+            <th class="big_bar" scope="col"><div></div></th>
+            <th scope="col"><h2><a href="{{ url_for('mtg_decks', year=year) }}">{{ year }}</a></h2></th>
+            <th class="big_bar" scope="col"></th>
+        </tr>
+    </thead>
+</table>
+    {% for month, decks in decks.items() %}
+<table class="table cv" style="width: 1000px">
+    <thead>
+        <tr>
             <th class="bar" scope="col"><div></div></th>
-            <th scope="col"><h3><a href="{{ url_for('mtg_decks', year=year) }}">{{ year }}</a></h3></th>
+            <th scope="col"><h3><a href="{{ url_for('mtg_decks', year=year, month=month) }}">{{ month }}</a></h3></th>
             <th class="bar" scope="col"></th>
         </tr>
     </thead>
     <tbody>
-    {% for month, decks in decks.items() %}
         {% for day, decks in decks.items() %}
+            {% set day_url = url_for('mtg_decks', year=year, month=month, day=day) %}
             {% for link, f, deck in decks %}
             <tr>
-                <th scope="row"><a class="black" href="{{ url_for('mtg_decks', year=year, month=month) }}">{{ month }}</a></th>
+                <th scope="row">{% if loop.first %}
+                    <a class="black" style="font-family: monospace, monospace;" href="{{ day_url }}">{{ day }}</a>
+                {% endif %}</th>
                 <td><a href="{{ link }}">{{ deck }}</a></td>
                 {% if f %}
                 <th scope="row"><a class="black" href="{{ url_for('mtg_decks', format=f) }}">[{{ f }}]</a></th>{# TODO: Add color/image per format #}

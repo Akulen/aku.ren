@@ -133,16 +133,30 @@ main::after {
     }
 }
 
-.table.cv .bar div { 
-    width: 100%; 
-    text-align: center; 
+.table.cv .big_bar div {
+    width: 100%;
+    text-align: center;
+    border-bottom: 9px solid rgb(22%, 45%, 70%); /* from moderncv blue */
+    line-height: 0.1em;
+    margin: 10px 0 20px;
+}
+
+.table.cv .bar div {
+    width: 100%;
+    text-align: center;
     border-bottom: 9px solid rgb(35%, 70%, 30%); /* from moderncv green */
     line-height: 0.1em;
-    margin: 10px 0 20px; 
+    margin: 10px 0 20px;
 }
 
 .table.cv tbody td, .table.cv th {
     padding: 0.25rem 0.75rem;
+    border: none;
+}
+
+.table.cv th.big_bar {
+    padding: 0.25rem 0;
+    width: 244px;
     border: none;
 }
 
@@ -157,6 +171,14 @@ main::after {
 }
 
 .table.cv thead a {
+    color: rgb(35%, 70%, 30%); /* from moderncv green */
+}
+
+.table.cv thead h2 a {
+    color: rgb(22%, 45%, 70%); /* from moderncv blue */
+}
+
+.table.cv thead h3 a {
     color: rgb(35%, 70%, 30%); /* from moderncv green */
 }
 
