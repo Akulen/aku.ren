@@ -281,11 +281,13 @@ def mtg_decks(format, year, month, day):
     decks_list = {}
     if month and not month.isnumeric():
         month = f'{list(calendar.month_abbr).index(month):02}'
+    formats = {'Any'}
     for deck in decks:
         if deck[-3:] != '.mf':
             continue
         parts = deck[:-3].split('_')
         deck_format = parts[0]
+        formats.add(deck_format)
         deck_date = parts[1]
         deck_name = '_'.join(parts[2:])
         if format is not None and deck_format != format:
@@ -318,10 +320,11 @@ def mtg_decks(format, year, month, day):
             deck_format,
             deck_name.replace('_', ' '),
         ))
-    print(decks_list)
     decks_list = sort_decks(decks_list)
-    print(decks_list)
-    return render_template('mtg_decks.html', format=format, decks=decks_list)
+    formats = sorted(formats)
+    return render_template('mtg_decks.html',
+        formats=formats, format=format, decks=decks_list
+    )
 fields = ['format', 'year', 'month', 'day']
 for i in range(2 ** len(fields)):
     is_field = [(1 << j) & i for j in range(len(fields))]

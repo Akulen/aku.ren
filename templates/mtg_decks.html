@@ -6,7 +6,7 @@
 <div style="margin: 0 auto; width: 1000px">
 <h1>MtG Decks</h1>
 <ul class="nav nav-pills nav-fill" style="margin: 0 auto; width: 500px">
-    {% for f in ['Any', 'Legacy', 'Modern'] %}{# TODO: Make this dynamic #}
+    {% for f in formats %}{# TODO: Make this dynamic #}
     <li class="nav-item">
         <a class="nav-link{% if format == f or (f == 'Any' and not format) %} active" aria-current="page{% endif %}" href="{{ url_for('mtg_decks', format=None if f == 'Any' else f) }}">{{ f }}</a>
     </li>
