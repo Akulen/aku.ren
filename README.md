@@ -83,3 +83,9 @@ db.session.commit()
 ```bash
 flask run
 ```
+
+## Other
+
+### MtGGauntlet
+
+To run the MtGGauntlet utility for the first time, an empty file `static/AllCards.json` must be created, with a last edit time of at least 1 day ago.
