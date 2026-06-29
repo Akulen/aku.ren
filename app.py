@@ -23,6 +23,11 @@ app.jinja_env.add_extension('jinja2.ext.do')
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+HEADERS = {
+    'User-Agent': 'AkuRenMtGTools/1.0',
+    'Accept': 'application/json;q=0.9,*/*;q=0.8'
+}
+
 class Algo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False, unique=True)
@@ -144,7 +149,7 @@ def get_scryfall(cards):
                 request += " border:" + card.border_color
             if card.collector_number:
                 request += " cn:" + card.collector_number
-            resp = requests.get(request).json()['data']
+            resp = requests.get(request, headers=HEADERS).json()['data']
             if len(resp) == 0:
                 raise ErrorNotFound(request)
             data = resp[0]
