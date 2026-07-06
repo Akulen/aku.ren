@@ -91,7 +91,7 @@
             {% for i in range(0, deck.sideboard | length, 3) %}
                 <div class="card-group">
                     {% for card in deck.sideboard[i:i+3] %}
-                        <img src="{{ card.normal_img }}" alt="{{ card.name }}" />
+                        <a href="{{ card.scryfall }}"><img src="{{ card.normal_img }}" alt="{{ card.name }}" /></a>
                     {% endfor %}
                 </div>
             {% endfor %}
