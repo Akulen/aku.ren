@@ -1,10 +1,10 @@
-{% extends "base.html" %}
+{% extends "simple_base.html" %}
 
-{% block subtitle %}{{ deck.name }}{% endblock %}
+{% block title %}MtG Wishlist - {{ deck.name }}{% endblock %}
 
 {% from "macros.html" import deck_gallery %}
 
-{% block body %}
+{% block main %}
     {% for ext, cards in deck.cards.items() %}
         <h3>{{ ext }}</h3>
         {{ deck_gallery(deck.name + ext, cards) }}

@@ -1,13 +1,13 @@
-{% extends "base.html" %}
+{% extends "simple_base.html" %}
 
-{% block subtitle %}MtG - Gauntlet{% endblock %}
+{% block title %}MtG - Gauntlet{% endblock %}
 
 {% block extrahead %}
     <link rel="stylesheet" href="{{ url_for('static', filename='tribute/dist/tribute.css') }}" />
     <script src="{{ url_for('static', filename='tribute/dist/tribute.js') }}"></script>
 {% endblock %}
 
-{% block body %}
+{% block main %}
     <script>
         let dataPath = '../../static';
     </script>

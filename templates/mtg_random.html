@@ -1,8 +1,8 @@
-{% extends "base.html" %}
+{% extends "simple_base.html" %}
 
-{% block subtitle %}MtG - Random{% endblock %}
+{% block title %}MtG - Random{% endblock %}
 
-{% block body %}
+{% block main %}
     <img id="pic" src="#" alt="card_image" style="visibility: hidden;">
     <script>
         const api = "https://api.scryfall.com/cards/random?q=lang:{{ lang }}";

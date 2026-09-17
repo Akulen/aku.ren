@@ -203,6 +203,21 @@ def get_scryfall(cards):
         db.session.commit()
     return scry_cards
 
+@app.route("/mtg")
+@app.route("/mtg/")
+def main_mtg():
+    cube_dir = os.path.join(basedir, "static/CustomCube")
+    cubes = []
+
+    if os.path.exists(cube_dir):
+        cubes = sorted([
+            item for item in os.listdir(cube_dir)
+            if os.path.isdir(os.path.join(cube_dir, item))
+            and not item.startswith('.')
+        ])
+
+    return render_template('mtg.html', cubes=cubes)
+
 @app.route("/mtg/random")
 @app.route("/mtg/random/<lang>")
 def mtg_random(lang='en'):
@@ -390,7 +405,7 @@ def mtg_wish_list():
     }
     for card in get_scryfall(cards):
         decks[card['deck']].append(card)
-    return render_template('mtg.html', decks=decks)
+    return render_template('mtg_wishlist.html', decks=decks)
 
 @app.route("/mtg/wishlist/<deck>")
 def mtg_wish(deck=None):
