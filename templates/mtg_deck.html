@@ -1,103 +1,522 @@
-{% extends "simple_base.html" %}
+{% extends "mtg_base.html" %}
 
-{% block title %}{{ deck.format }} — {{ deck.name }} [{{ deck.year }}/{{ deck.month }}/{{ deck.day }}]{% endblock %}
+{% block title %}{{ deck.name }}{% endblock %}
 
-{% block extrahead %}
+{% block mtg_page_class %} mtg-page-deck{% endblock %}
+
+{% block mtg_crumb %}
+<a class="mtg-crumb" href="{{ url_for('mtg_decks', format=deck.format) }}">
+    <i class="fas fa-arrow-left" aria-hidden="true"></i>
+    Decks
+</a>
+{% endblock %}
+
+{% block mtg_title %}
+<a href="{{ deck.file_url }}" download title="Download .mf file" style="color: inherit; text-decoration: none; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">{{ deck.name }}</a>
+{% endblock %}
+
+{% block mtg_subtitle %}{{ deck.format }} · {{ deck.year }}-{{ deck.month }}-{{ deck.day }}{% endblock %}
+
+{% block mtg_extrahead %}
 <style>
-    .deck-container {
+    html, body {
+        width: 100%;
+        max-width: 100vw;
+        overflow-x: clip !important;
+        margin: 0;
+        padding: 0;
+    }
+
+    .mtg-page {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box;
+    }
+
+    .mtg-page.mtg-page-deck {
+        max-width: min(1900px, calc(100vh * 1.75)) !important;
+        margin: 0 auto;
+        padding-top: 0.25rem;
+        padding-bottom: 1rem;
+        box-sizing: border-box;
+    }
+
+    @media (min-height: 950px) {
+        .mtg-page.mtg-page-deck {
+            padding-top: 1.5rem;
+        }
+    }
+
+    .mtg-deck-section {
+        margin-bottom: 0;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .column-header {
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+        line-height: 1;
+        font-weight: 600;
+        color: var(--mtg-text);
+        visibility: hidden;
         display: flex;
-        flex-wrap: wrap;
-        gap: 1%;
-        margin: 1%;
-        width: 1920px;
-        height: 852px;
+        justify-content: flex-start;
+        align-items: center;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .column-header.is-visible {
+        visibility: visible;
+    }
+
+    .column-header .mtg-badge {
+        margin-left: 0.5rem;
+    }
+
+    .deck-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        column-gap: 1.5rem;
+        row-gap: 2.5rem;
+        align-items: start;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .card-column {
-        flex: 5;
+        width: 100%;
+        height: fit-content;
+        box-sizing: border-box;
+        container-type: inline-size;
+        padding-bottom: 0;
     }
 
     .sideboard-column {
-        flex: 4;
+        width: 100%;
+        height: fit-content;
+        box-sizing: border-box;
+        align-self: start;
+    }
+
+    .sideboard-box {
+        display: block;
+        width: 100%;
+        height: fit-content;
+        padding: 0.3rem 0.2rem 0.5rem 0.2rem;
+        margin-top: calc(-0.3rem - 1px);
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 6px;
+        box-shadow:
+            0 4px 12px -2px rgba(0, 0, 0, 0.4),
+            0 2px 5px -1px rgba(0, 0, 0, 0.25),
+            inset 0 1px 1px rgba(255, 255, 255, 0.15);
+        box-sizing: border-box;
+    }
+
+    .sideboard-box .column-header {
+        text-align: left;
+        padding-left: 10cqw;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+        line-height: 1;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        width: 100%;
     }
 
     .card-group {
+        display: flex;
+        flex-wrap: nowrap;
         position: relative;
+        margin-bottom: -26cqw;
         width: 100%;
-        margin-bottom: -26%;
     }
 
-    .sideboard-column > .card-group {
-        margin-bottom: -32.5%;
+    .sideboard-box .card-group {
+        justify-content: center;
+        margin-bottom: -26cqw;
+    }
+
+    .card-column > .card-group:last-child,
+    .sideboard-box > .card-group:last-child {
+        margin-bottom: 0;
     }
 
     .card-group a {
-        margin-right: -20%;
-        width: 40%;
-    }
-    .card-group img {
+        display: block;
+        flex: 0 0 40cqw;
+        width: 40cqw;
+        margin-right: -20cqw;
         position: relative;
+    }
+
+    .card-group a.is-hovered,
+    .card-group a:hover {
+        z-index: 30;
+    }
+
+    .card-group a:last-child {
+        margin-right: 0;
+    }
+
+    .sideboard-box .card-group a {
+        flex: 0 0 40cqw;
+        width: 40cqw;
+        margin-right: -20cqw;
+    }
+
+    .sideboard-box .card-group a:last-child {
+        margin-right: 0;
+    }
+
+    .card-group img {
+        display: block;
         width: 100%;
         height: auto;
-        border-radius: 4.75% 3.5%;
-        box-shadow: 2% 2% 5% rgba(0,0,0,0.3);
-        transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
-        will-change: transform, z-index;
+        aspect-ratio: 63 / 88;
+        border-radius: 4.75% / 3.5%;
+        background: var(--mtg-card-bg);
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition-smooth);
+        position: relative;
     }
 
-    .sideboard-column > .card-group img {
-        width: 100%;
-    }
-    .sideboard-column > .card-group a {
-        width: 50%;
-        margin-right: -25%;
-    }
-
+    .card-group a.is-hovered img,
     .card-group img:hover {
-        z-index: 100 !important;
-        transform: scale(1.1);
-        box-shadow: 5% 5% 15% rgba(0,0,0,0.5);
-     }
+        transform: scale(1.35);
+        z-index: 35;
+        box-shadow: var(--shadow-md);
+    }
+
+    .sideboard-horizontal-header {
+        display: none;
+    }
+
+    .sideboard-horizontal {
+        display: none;
+        position: relative;
+        width: 100%;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        padding: 0.85rem 0 2rem 0;
+        isolation: isolate;
+        box-sizing: border-box;
+    }
+
+    .sideboard-horizontal-inner {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        align-items: flex-start;
+        --sb-card-w: calc((100% - 2 * 1.5rem) / 3 * 0.4);
+    }
+
+    .sideboard-card-item {
+        flex: 0 0 var(--sb-card-w);
+        width: var(--sb-card-w);
+        margin-right: calc((15 * var(--sb-card-w) - 100%) / -14);
+        position: relative;
+        transition: var(--transition-smooth);
+    }
+
+    .sideboard-card-item:last-child {
+        margin-right: 0;
+    }
+
+    .sideboard-card-item:nth-child(even) {
+        transform: translateY(40%);
+    }
+
+    .sideboard-card-item img {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 63 / 88;
+        border-radius: 4.75% / 3.5%;
+        background: var(--mtg-card-bg);
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition-smooth);
+    }
+
+    .sideboard-card-item.is-hovered img,
+    .sideboard-card-item img:hover {
+        transform: scale(1.4);
+        z-index: 35;
+        box-shadow: var(--shadow-md);
+    }
+
+    @media (max-width: 1100px) and (min-width: 769px) {
+        .mtg-page.mtg-page-deck {
+            max-width: 1100px !important;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        .deck-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        .sideboard-column {
+            display: none;
+        }
+        .sideboard-horizontal-header {
+            display: block;
+            visibility: visible;
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+        .sideboard-horizontal {
+            display: block;
+        }
+        .sideboard-horizontal::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: -3rem;
+            left: -0.85rem;
+            right: -0.85rem;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 6px;
+            box-shadow:
+                0 4px 12px -2px rgba(0, 0, 0, 0.4),
+                0 2px 5px -1px rgba(0, 0, 0, 0.25),
+                inset 0 1px 1px rgba(255, 255, 255, 0.15);
+            z-index: -1;
+        }
+    }
+
+    @media (max-width: 768px) and (min-width: 521px) {
+        .mtg-page.mtg-page-deck {
+            max-width: 768px !important;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        .deck-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            row-gap: 2rem;
+        }
+        .sideboard-horizontal-header,
+        .sideboard-horizontal {
+            display: none;
+        }
+        .sideboard-column {
+            display: block;
+        }
+    }
+
+    @media (max-width: 520px) {
+        .mtg-page.mtg-page-deck {
+            max-width: 100% !important;
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+        .mtg-deck-section {
+            margin-bottom: 1rem;
+        }
+        .deck-grid {
+            grid-template-columns: 1fr;
+            row-gap: 1.25rem;
+            justify-items: center;
+        }
+        .card-column {
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+        .sideboard-horizontal-header,
+        .sideboard-horizontal {
+            display: none;
+        }
+        .sideboard-column {
+            display: block;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+        .sideboard-box {
+            margin-top: 0;
+            padding: 0.2rem 0.2rem 0.25rem 0.2rem;
+            border-radius: 6px;
+        }
+        .sideboard-box .column-header {
+            padding-left: 0;
+            margin-bottom: 0.35rem;
+        }
+    }
+
+    @media (max-height: 500px) and (orientation: landscape) {
+        .mtg-page.mtg-page-deck {
+            max-width: 100% !important;
+            padding-top: 0 !important;
+            padding-left: 0.25rem !important;
+            padding-right: 0.25rem !important;
+            padding-bottom: 0.5rem !important;
+        }
+        .mtg-deck-section {
+            margin-bottom: 0 !important;
+        }
+        .column-header {
+            font-size: 0.75rem !important;
+            line-height: 1 !important;
+            margin-bottom: 0.35rem !important;
+        }
+        .deck-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+            column-gap: 0.25rem !important;
+            row-gap: 0.5rem !important;
+        }
+        .card-column {
+            padding-bottom: 0 !important;
+        }
+        .sideboard-column {
+            display: block !important;
+        }
+        .sideboard-box {
+            display: block !important;
+            width: 100% !important;
+            padding: 0.25rem 0.15rem 0.25rem 0.15rem !important;
+            margin-top: calc(-0.25rem - 1px) !important;
+            border-radius: 6px !important;
+            box-shadow:
+                0 3px 8px -2px rgba(0, 0, 0, 0.4),
+                0 1px 3px -1px rgba(0, 0, 0, 0.25),
+                inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
+        }
+        .sideboard-box .column-header {
+            padding-left: 10cqw !important;
+            margin-bottom: 0.35rem !important;
+            font-size: 0.75rem !important;
+            line-height: 1 !important;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            white-space: nowrap;
+        }
+        .sideboard-box .column-header .mtg-badge {
+            margin-left: 0.3rem;
+            font-size: 0.7rem;
+        }
+        .sideboard-horizontal-header,
+        .sideboard-horizontal {
+            display: none !important;
+        }
+    }
+
+    @media (max-width: 900px) {
+        .card-group img:hover {
+            transform: scale(1.2);
+        }
+    }
+
+    @media (max-width: 480px) {
+        .card-group img:hover {
+            transform: scale(1.1);
+        }
+    }
 </style>
 {% endblock %}
 
-{% block main %}
-    <div class="deck-container">
-        {% set total_cards = deck.main | length %}
-        {% set cards_per_column = (total_cards / 3 / 4) | round(0, 'ceil') * 4 %}
-        {% set column_break_points = [] %}
-        {% for i in range(3) %}
-            {% set start_index = i * cards_per_column %}
-            {% set end_index = [((i + 1) * cards_per_column), total_cards]|min %}
-            {% do column_break_points.append({'start': start_index | int, 'end': end_index | int}) %}
-        {% endfor %}
-
-        {% for column_index in range(3) %}
-            <div class="card-column">
-                {% set start = column_break_points[column_index].start %}
-                {% set end = column_break_points[column_index].end %}
-
-                {% for i in range(start, end, 4) %}
-                    <div class="card-group">
-                        {% for j in range(4) %}
-                            {% set card_index = i + j %}
-                            {% if card_index < total_cards %}
-                            <a href="{{ deck.main[card_index].scryfall }}"><img src="{{ deck.main[card_index].normal_img }}" alt="{{ deck.main[card_index].name }}" /></a>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
+{% block mtg_content %}
+{% set main_groups = deck.main | batch(4) | list %}
+{% set groups_per_column = ((main_groups | length) / 3) | round(0, 'ceil') | int %}
+{% set groups_per_column = [0, groups_per_column] | max %}
+{% set sideboard_groups = (deck.sideboard | batch(3) | list) if deck.sideboard else [] %}
+<section class="mtg-deck-section">
+    <div class="deck-grid">
+        {% for column in main_groups | batch(groups_per_column) %}
+        <div class="card-column">
+            <div class="column-header{% if loop.first %} is-visible{% endif %}">Main<span class="mtg-badge">{{ deck.main | length }}</span></div>
+            {% for group in column %}
+            <div class="card-group">
+                {% for card in group %}
+                <a href="{{ card.scryfall }}"><img
+                    src="{{ card.small_img }}"
+                    data-hires="{{ card.normal_img }}"
+                    alt="{{ card.name }}"
+                    loading="lazy"
+                    decoding="async"
+                    onmouseenter="this.src=this.dataset.hires"
+                /></a>
                 {% endfor %}
             </div>
+            {% endfor %}
+        </div>
         {% endfor %}
-        <div class="divider" style="width: 0; border-left: 1px solid grey; height: auto"></div>
+
+        {% if deck.sideboard %}
         <div class="card-column sideboard-column">
-            {% for i in range(0, deck.sideboard | length, 3) %}
+            <div class="sideboard-box">
+                <div class="column-header is-visible">Sideboard<span class="mtg-badge">{{ deck.sideboard | length }}</span></div>
+                {% for group in sideboard_groups %}
                 <div class="card-group">
-                    {% for card in deck.sideboard[i:i+3] %}
-                        <a href="{{ card.scryfall }}"><img src="{{ card.normal_img }}" alt="{{ card.name }}" /></a>
+                    {% for group_card in group %}
+                    <a href="{{ group_card.scryfall }}"><img
+                        src="{{ group_card.small_img }}"
+                        data-hires="{{ group_card.normal_img }}"
+                        alt="{{ group_card.name }}"
+                        loading="lazy"
+                        decoding="async"
+                        onmouseenter="this.src=this.dataset.hires"
+                    /></a>
                     {% endfor %}
                 </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if deck.sideboard %}
+    <div class="column-header sideboard-horizontal-header">Sideboard<span class="mtg-badge">{{ deck.sideboard | length }}</span></div>
+    <div class="sideboard-horizontal">
+        <div class="sideboard-horizontal-inner">
+            {% for card in deck.sideboard %}
+            <a href="{{ card.scryfall }}" class="sideboard-card-item">
+                <img
+                    src="{{ card.small_img }}"
+                    data-hires="{{ card.normal_img }}"
+                    alt="{{ card.name }}"
+                    loading="lazy"
+                    decoding="async"
+                    onmouseenter="this.src=this.dataset.hires"
+                />
+            </a>
             {% endfor %}
         </div>
     </div>
+    {% endif %}
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+        const cardLinks = document.querySelectorAll('.card-group a, .sideboard-card-item');
+
+        cardLinks.forEach(function (link) {
+            link.addEventListener('click', function (e) {
+                if (!link.classList.contains('is-hovered')) {
+                    e.preventDefault();
+                    cardLinks.forEach(l => l.classList.remove('is-hovered'));
+                    link.classList.add('is-hovered');
+
+                    const img = link.querySelector('img');
+                    if (img && img.dataset.hires) {
+                        img.src = img.dataset.hires;
+                    }
+                }
+            });
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.card-group a, .sideboard-card-item')) {
+                cardLinks.forEach(l => l.classList.remove('is-hovered'));
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

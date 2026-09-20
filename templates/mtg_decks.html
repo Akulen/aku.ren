@@ -1,54 +1,49 @@
-{% extends "simple_base.html" %}
+{% extends "mtg_base.html" %}
 
 {% block title %}Decks{% endblock %}
 
-{% block main %}
-<div style="margin: 0 auto; width: 1000px">
-<h1>MtG Decks</h1>
-<ul class="nav nav-pills nav-fill" style="margin: 0 auto; width: 500px">
-    {% for f in formats %}{# TODO: Make this dynamic #}
-    <li class="nav-item">
-        <a class="nav-link{% if format == f or (f == 'Any' and not format) %} active" aria-current="page{% endif %}" href="{{ url_for('mtg_decks', format=None if f == 'Any' else f) }}">{{ f }}</a>
-    </li>
+{% block mtg_title %}Decks{% endblock %}
+{% block mtg_subtitle %}Browse my past decklists.{% endblock %}
+
+{% block mtg_content %}
+<div class="mtg-pills">
+    {% for f in formats %}
+    <a
+        class="mtg-pill{% if format == f or (f == 'Any' and not format) %} active{% endif %}"
+        href="{{ url_for('mtg_decks', format=None if f == 'Any' else f) }}"
+        >{{ f }}</a>
     {% endfor %}
-</ul>
-{% for year, decks in decks.items() %}
-<table class="table cv" style="width: 1000px">
-    <thead>
-        <tr>
-            <th class="big_bar" scope="col"><div></div></th>
-            <th scope="col"><h2><a href="{{ url_for('mtg_decks', year=year) }}">{{ year }}</a></h2></th>
-            <th class="big_bar" scope="col"></th>
-        </tr>
-    </thead>
-</table>
-    {% for month, decks in decks.items() %}
-<table class="table cv" style="width: 1000px">
-    <thead>
-        <tr>
-            <th class="bar" scope="col"><div></div></th>
-            <th scope="col"><h3><a href="{{ url_for('mtg_decks', year=year, month=month) }}">{{ month }}</a></h3></th>
-            <th class="bar" scope="col"></th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for day, decks in decks.items() %}
-            {% set day_url = url_for('mtg_decks', year=year, month=month, day=day) %}
-            {% for link, f, deck in decks %}
-            <tr>
-                <th scope="row">{% if loop.first %}
-                    <a class="black" style="font-family: monospace, monospace;" href="{{ day_url }}">{{ day }}</a>
-                {% endif %}</th>
-                <td><a href="{{ link }}">{{ deck }}</a></td>
-                {% if f %}
-                <th scope="row"><a class="black" href="{{ url_for('mtg_decks', format=f) }}">[{{ f }}]</a></th>{# TODO: Add color/image per format #}
-                {% endif %}
-            </tr>
-            {% endfor %}
-        {% endfor %}
-    {% endfor %}
-    </tbody>
-</table>
-{% endfor %}
 </div>
+
+{% if decks %}
+    {% for year, months in decks.items() %}
+    <section class="mtg-section">
+        <div class="mtg-section-title">
+            <h2><a href="{{ url_for('mtg_decks', year=year, format=format) }}">{{ year }}</a></h2>
+        </div>
+
+        {% for month, days in months.items() %}
+        <div class="mtg-section-title mtg-subsection">
+            <h3><a href="{{ url_for('mtg_decks', year=year, month=month, format=format) }}">{{ month }}</a></h3>
+        </div>
+        <ul class="mtg-list">
+            {% for day, day_decks in days.items() %}
+                {% set day_url = url_for('mtg_decks', year=year, month=month, day=day, format=format) %}
+                {% for link, f, deck in day_decks %}
+                <li class="mtg-list-row">
+                    <a class="mtg-list-day" href="{{ day_url }}">{% if loop.first %}{{ day }}{% endif %}</a>
+                    <a class="mtg-list-name" href="{{ link }}">{{ deck }}</a>
+                    {% if f %}
+                    <a class="mtg-list-tag" href="{{ url_for('mtg_decks', format=f) }}">[{{ f }}]</a>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+        {% endfor %}
+    </section>
+    {% endfor %}
+{% else %}
+<p class="mtg-empty">No decks to show{% if format %} for format “{{ format }}”{% endif %}.</p>
+{% endif %}
 {% endblock %}

@@ -1,237 +1,115 @@
-{% extends "simple_base.html" %}
+{% extends "mtg_base.html" %}
 
 {% block title %}MtG Hub{% endblock %}
 
-{% block extrahead %}
-<style>
-:root {
-    /* Fallbacks that respect light themes while providing dark modern card accents */
-    --mtg-text: inherit;
-    --mtg-text-muted: #666666;
-    --mtg-card-bg: #1e1e24;
-    --mtg-card-border: #333338;
-    --mtg-card-border-hover: #555560;
-    --mtg-card-text: #f4f4f5;
-    --mtg-card-subtext: #a1a1aa;
-    --mtg-accent: #6366f1;
-    --radius-lg: 12px;
-    --radius-md: 6px;
-    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
-    --shadow-md: 0 10px 20px -5px rgba(0, 0, 0, 0.25);
-    --transition-smooth: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
+{% block mtg_crumb %}{% endblock %}
 
-.mtg-menu {
-    max-width: 720px;
-    margin: 3rem auto;
-    padding: 0 1.25rem;
-    color: var(--mtg-text);
-}
+{% block mtg_title %}Magic: The Gathering{% endblock %}
+{% block mtg_subtitle %}Various utilities.{% endblock %}
 
-.mtg-header {
-    margin-bottom: 2rem;
-}
-
-.mtg-header h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    letter-spacing: -0.025em;
-    margin: 0 0 0.25rem 0;
-    color: var(--mtg-text);
-}
-
-.mtg-header p {
-    margin: 0;
-    color: var(--mtg-text-muted);
-    font-size: 0.95rem;
-}
-
-.mtg-menu-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.25rem;
-}
-
-.mtg-card {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 1.25rem 1.5rem;
-    background: var(--mtg-card-bg);
-    border: 1px solid var(--mtg-card-border);
-    border-radius: var(--radius-lg);
-    text-decoration: none;
-    color: var(--mtg-card-text);
-    box-shadow: var(--shadow-sm);
-    transition: var(--transition-smooth);
-    position: relative;
-    user-select: none;
-}
-
-.mtg-card:hover,
-.mtg-card:focus-within,
-.mtg-card:has(select:focus) {
-    transform: translateY(-3px);
-    border-color: var(--mtg-card-border-hover);
-    box-shadow: var(--shadow-md);
-}
-
-.mtg-card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    margin-bottom: 0.5rem;
-    gap: 0.75rem;
-}
-
-.mtg-card h2 {
-    margin: 0;
-    font-size: 1.15rem;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    color: var(--mtg-card-text);
-}
-
-.mtg-card p {
-    margin: 0;
-    font-size: 0.875rem;
-    color: var(--mtg-card-subtext);
-    line-height: 1.4;
-}
-
-.mtg-select-wrapper {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-}
-
-.mtg-card-select {
-    appearance: none;
-    -webkit-appearance: none;
-    background-color: #121215;
-    color: var(--mtg-card-text);
-    border: 1px solid var(--mtg-card-border);
-    border-radius: var(--radius-md);
-    padding: 0.35rem 2rem 0.35rem 0.75rem;
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: var(--transition-smooth);
-}
-
-.mtg-card-select:hover {
-    border-color: var(--mtg-card-border-hover);
-}
-
-.mtg-card-select:focus {
-    outline: none;
-    border-color: var(--mtg-accent);
-    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
-}
-
-.mtg-select-wrapper::after {
-    content: "";
-    position: absolute;
-    right: 0.75rem;
-    pointer-events: none;
-    width: 0.4rem;
-    height: 0.4rem;
-    border-right: 2px solid var(--mtg-card-subtext);
-    border-bottom: 2px solid var(--mtg-card-subtext);
-    transform: rotate(45deg);
-    margin-top: -2px;
-}
-
-.mtg-card-disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    pointer-events: none;
-}
-</style>
-{% endblock %}
-
-{% block main %}
-<div class="mtg-menu">
-    <header class="mtg-header">
-        <h1>Magic: The Gathering</h1>
-        <p>Various utilities.</p>
-    </header>
-
-    <nav class="mtg-menu-grid">
-        <a class="mtg-card" href="{{ url_for('mtg_decks') }}">
-            <div class="mtg-card-header">
+{% block mtg_content %}
+<nav class="mtg-menu-grid">
+    <a class="mtg-card" href="{{ url_for('mtg_decks') }}">
+        <div class="mtg-card-header">
+            <div class="mtg-card-title">
+                <span class="mtg-card-icon"><i class="fas fa-layer-group" aria-hidden="true"></i></span>
                 <h2>Decks</h2>
             </div>
-            <p>Browse my past decklists.</p>
-        </a>
+            <i class="fas fa-arrow-right mtg-card-arrow" aria-hidden="true"></i>
+        </div>
+        <p>Browse my past decklists.</p>
+    </a>
 
-        <a class="mtg-card" href="{{ url_for('mtg_gauntlet') }}">
-            <div class="mtg-card-header">
+    <a class="mtg-card" href="{{ url_for('mtg_gauntlet') }}">
+        <div class="mtg-card-header">
+            <div class="mtg-card-title">
+                <span class="mtg-card-icon"><i class="fas fa-shield-halved" aria-hidden="true"></i></span>
                 <h2>Gauntlet</h2>
             </div>
-            <p>Generate multi-deck proxies for playtesting.</p>
-        </a>
-
-        {% if cubes %}
-        <div 
-            class="mtg-card" 
-            tabindex="0" 
-            role="button" 
-            aria-label="Navigate to selected cube"
-            onclick="navigateToCube()" 
-            onkeydown="if(event.key==='Enter'||event.key===' ') navigateToCube()"
-            >
-            <div class="mtg-card-header">
-                <h2>Cube</h2>
-                <div class="mtg-select-wrapper">
-                    <select 
-                        class="mtg-card-select" 
-                        id="cubeSelect" 
-                        aria-label="Select custom cube"
-                        onclick="event.stopPropagation();" 
-                        onkeydown="event.stopPropagation();"
-                        >
-                        {% for c in cubes %}
-                        <option value="{{ c }}">{{ c }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-            <p>View custom cube cards.</p>
+            <i class="fas fa-arrow-right mtg-card-arrow" aria-hidden="true"></i>
         </div>
-        {% else %}
-        <div class="mtg-card mtg-card-disabled">
-            <div class="mtg-card-header">
+        <p>Generate multi-deck proxies for playtesting.</p>
+    </a>
+
+    {% if cubes %}
+    <div
+        class="mtg-card"
+        tabindex="0"
+        role="button"
+        aria-label="Navigate to selected cube"
+        onclick="navigateToCube()"
+        onkeydown="if(event.key==='Enter'||event.key===' ') navigateToCube()"
+        >
+        <div class="mtg-card-header">
+            <div class="mtg-card-title">
+                <span class="mtg-card-icon"><i class="fas fa-cubes" aria-hidden="true"></i></span>
                 <h2>Cube</h2>
             </div>
-            <p>No custom cubes currently available.</p>
+            <div class="mtg-select-wrapper">
+                <select
+                    class="mtg-card-select"
+                    id="cubeSelect"
+                    aria-label="Select custom cube"
+                    onclick="event.stopPropagation();"
+                    onkeydown="event.stopPropagation();"
+                    >
+                    {% for c in cubes %}
+                    <option value="{{ c }}">{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
         </div>
-        {% endif %}
+        <p>View custom cube cards.</p>
+    </div>
+    {% else %}
+    <div class="mtg-card mtg-card-disabled">
+        <div class="mtg-card-header">
+            <div class="mtg-card-title">
+                <span class="mtg-card-icon"><i class="fas fa-cubes" aria-hidden="true"></i></span>
+                <h2>Cube</h2>
+            </div>
+            <span class="mtg-badge">None yet</span>
+        </div>
+        <p>No custom cubes currently available.</p>
+    </div>
+    {% endif %}
 
-        <a class="mtg-card" href="{{ url_for('mtg_random') }}">
-            <div class="mtg-card-header">
+    <a class="mtg-card" href="{{ url_for('mtg_random') }}">
+        <div class="mtg-card-header">
+            <div class="mtg-card-title">
+                <span class="mtg-card-icon"><i class="fas fa-shuffle" aria-hidden="true"></i></span>
                 <h2>Random Card</h2>
             </div>
-            <p>Fetch a completely random card from Scryfall.</p>
-        </a>
+            <i class="fas fa-arrow-right mtg-card-arrow" aria-hidden="true"></i>
+        </div>
+        <p>Fetch a completely random card from Scryfall.</p>
+    </a>
 
-        <!-- <a class="mtg-card" href="{{ url_for('mtg_wish_list') }}">
-            <div class="mtg-card-header">
+    <!-- <a class="mtg-card" href="{{ url_for('mtg_wish_list') }}">
+        <div class="mtg-card-header">
+            <div class="mtg-card-title">
+                <span class="mtg-card-icon"><i class="fas fa-heart" aria-hidden="true"></i></span>
                 <h2>Wishlist</h2>
             </div>
-            <p>Track targeted purchases and desired singles.</p>
-        </a> -->
-
-        <div class="mtg-card mtg-card-disabled">
-            <div class="mtg-card-header">
-                <h2>Metagame Stats (WIP)</h2>
-            </div>
-            <p>Tools to analyze metagames.</p>
+            <i class="fas fa-arrow-right mtg-card-arrow" aria-hidden="true"></i>
         </div>
-    </nav>
-</div>
+        <p>Track targeted purchases and desired singles.</p>
+    </a> -->
 
+    <div class="mtg-card mtg-card-disabled">
+        <div class="mtg-card-header">
+            <div class="mtg-card-title">
+                <span class="mtg-card-icon"><i class="fas fa-chart-line" aria-hidden="true"></i></span>
+                <h2>Metagame Stats</h2>
+            </div>
+            <span class="mtg-badge">WIP</span>
+        </div>
+        <p>Tools to analyze metagames.</p>
+    </div>
+</nav>
+{% endblock %}
+
+{% block mtg_extrabody %}
 <script>
     function navigateToCube() {
         const select = document.getElementById('cubeSelect');
