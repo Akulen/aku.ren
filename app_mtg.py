@@ -5,7 +5,8 @@ import json
 import requests
 import time
 from sqlalchemy.sql import func
-from flask import redirect, render_template, url_for
+from PIL import Image, UnidentifiedImageError
+from flask import redirect, render_template, send_from_directory, url_for
 
 from app import app, db, basedir
 
@@ -275,6 +276,40 @@ def mtg_gauntlet():
 
     return render_template('mtg_gauntlet.html')
 
+def _cube_thumb_dir(cube):
+    thumb_dir = os.path.join(basedir, f"static/CustomCube/{cube}/.thumbs")
+    os.makedirs(thumb_dir, exist_ok=True)
+    return thumb_dir
+
+@app.route("/mtg/cube/<cube>/thumb/<path:filename>")
+def mtg_cube_thumb(cube, filename, thumb_max_width=320):
+    source_path = os.path.join(basedir, f"static/CustomCube/{cube}/{filename}")
+    if not os.path.isfile(source_path):
+        raise ErrorNotFound()
+
+    thumb_dir = _cube_thumb_dir(cube)
+    thumb_name = os.path.splitext(filename)[0] + f".{thumb_max_width}.jpg"
+    thumb_path = os.path.join(thumb_dir, thumb_name)
+
+    stale = (
+        not os.path.exists(thumb_path)
+        or os.path.getmtime(thumb_path) < os.path.getmtime(source_path)
+    )
+    if stale:
+        try:
+            with Image.open(source_path) as img:
+                img = img.convert("RGB")
+                ratio = thumb_max_width / img.width
+                new_size = (thumb_max_width, round(img.height * ratio))
+                img = img.resize(new_size, Image.Resampling.LANCZOS)
+                img.save(thumb_path, "JPEG", quality=85, optimize=True)
+        except UnidentifiedImageError:
+            directory, name = os.path.split(source_path)
+            return send_from_directory(directory, name)
+
+    return send_from_directory(thumb_dir, thumb_name)
+
+
 @app.route("/mtg/cube/<cube>")
 def mtg_cube(cube=None):
     cubePath = os.path.join(
@@ -297,10 +332,12 @@ def mtg_cube(cube=None):
             continue
 
         link = url_for('static', filename=f"CustomCube/{cube}/{card}")
+        thumb = url_for('mtg_cube_thumb', cube=cube, filename=card)
 
         card_list.append({
             'name': card,
             'link': link,
+            'thumb': thumb,
         })
         print(card, link, card_list)
 

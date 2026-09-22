@@ -1,28 +1,87 @@
-{% extends "simple_base.html" %}
+{% extends "mtg_base.html" %}
 
 {% block title %}Cube - {{ cube_name }}{% endblock %}
 
-{% from "macros.html" import deck_gallery %}
+{% block mtg_title %}{{ cube_name }}{% endblock %}
+{% block mtg_subtitle %}{{ cards | length }} cards{% endblock %}
 
-{% block main %}
-{% for card in cards %}
-<a href="{{ card.link }}"><img src="{{ card.link }}" style="width: 100px;"></a>
-{% endfor %}
+{% block mtg_extrahead %}
+<style>
+    .cube-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        gap: 0.85rem;
+    }
 
-<script src="https://cdn.jsdelivr.net/npm/bs5-lightbox@1.8.3/dist/index.bundle.min.js">
-</script>
+    .cube-card {
+        display: block;
+        position: relative;
+        border-radius: 6px;
+        overflow: hidden;
+        background: var(--mtg-card-bg);
+        border: 1px solid var(--mtg-card-border);
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition-smooth);
+    }
+
+    .cube-card:hover {
+        transform: translateY(-3px);
+        border-color: var(--mtg-card-border-hover);
+        box-shadow: var(--shadow-md);
+        z-index: 2;
+    }
+
+    .cube-card img {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 2010 / 2814;
+        background: var(--mtg-card-bg);
+    }
+
+    .lightbox-backdrop {
+        background: rgba(0, 0, 0, 0.85) !important;
+    }
+</style>
+{% endblock %}
+
+{% block mtg_content %}
+{% if cards %}
+<div class="cube-grid">
+    {% for card in cards %}
+    <a
+        href="{{ card.link }}"
+        class="cube-card"
+        data-gallery="cube"
+        data-title="{{ card.name }}"
+        >
+        <img
+            src="{{ card.thumb }}"
+            alt="{{ card.name }}"
+            loading="lazy"
+            decoding="async"
+        />
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<p class="mtg-empty">No cards in this cube yet.</p>
+{% endif %}
+{% endblock %}
+
+{% block mtg_extrabody %}
+<script src="https://cdn.jsdelivr.net/npm/bs5-lightbox@1.8.3/dist/index.bundle.min.js"></script>
 <script>
-const options = {
-	size: 'lg'
-};
+    const options = {
+        size: 'lg'
+    };
 
-document.querySelectorAll(Lightbox.defaultSelector).forEach((el) => {
-    el.removeEventListener('click', Lightbox.initialize);
-    el.addEventListener('click', (e) => {
-        e.preventDefault();
-        const lightbox = new Lightbox(el, options);
-        lightbox.show();
+    document.querySelectorAll('.cube-card').forEach((el) => {
+        el.addEventListener('click', (e) => {
+            e.preventDefault();
+            const lightbox = new Lightbox(el, options);
+            lightbox.show();
+        });
     });
-});
 </script>
 {% endblock %}
