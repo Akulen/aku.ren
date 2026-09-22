@@ -1,19 +1,29 @@
-{% extends "simple_base.html" %}
+{% extends "mtg_base.html" %}
 
-{% block title %}MtG - Gauntlet{% endblock %}
+{% block title %}Gauntlet{% endblock %}
 
-{% block extrahead %}
+{% block mtg_title %}Gauntlet{% endblock %}
+{% block mtg_subtitle %}Generate multi-deck proxies for playtesting.{% endblock %}
+
+{% block mtg_page_class %} mtg-page-deck{% endblock %}
+
+{% block mtg_extrahead %}
     <link rel="stylesheet" href="{{ url_for('static', filename='tribute/dist/tribute.css') }}" />
     <script src="{{ url_for('static', filename='tribute/dist/tribute.js') }}"></script>
+    <style>
+        .mtgCard {
+            color: initial;
+        }
+    </style>
 {% endblock %}
 
-{% block main %}
+{% block mtg_content %}
     <script>
         let dataPath = '../../static';
     </script>
     {% include 'gauntlet_editor.html' %}
 {% endblock %}
 
-{% block extrabody %}
-    <script type='text/javascript' src='{{ url_for('static', filename='gauntlet_editor.js') }}'> </script>
-{% endblock extrabody %}
+{% block mtg_extrabody %}
+    <script type='text/javascript' src='{{ url_for('static', filename='gauntlet_editor.js') }}'></script>
+{% endblock %}

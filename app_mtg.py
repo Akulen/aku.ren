@@ -3,6 +3,7 @@ import calendar
 import datetime
 import json
 import requests
+import threading
 import time
 from sqlalchemy.sql import func
 from PIL import Image, UnidentifiedImageError
@@ -250,19 +251,18 @@ def main_mtg():
 def mtg_random(lang='en'):
     return render_template('mtg_random.html', lang=lang)
 
-@app.route("/mtg/gauntlet")
-def mtg_gauntlet():
-    dataPath = os.path.join(
-        basedir,
-        url_for('static', filename='AllCards.json')[1:]
-    )
-    if (datetime.datetime.now() - datetime.datetime.fromtimestamp(
-        os.path.getmtime(dataPath)
-    )) >= datetime.timedelta(days=1):
+_allcards_refresh_lock = threading.Lock()
+
+def _fetch_allcards_data(dataPath):
+    if not _allcards_refresh_lock.acquire(blocking=False):
+        return
+
+    try:
         request = 'https://mtgjson.com/api/v5/AtomicCards.json'
-        resp = requests.get(request).json()['data']
+        resp = requests.get(request, timeout=180).json()['data']
         if len(resp) == 0:
-            raise ErrorNotFound(request)
+            return
+
         data = {}
         for card_name, card in resp.items():
             data[card_name] = []
@@ -271,8 +271,38 @@ def mtg_gauntlet():
                 for key in ['name', 'faceName', 'manaCost', 'text', 'supertypes', 'types', 'subtypes', 'type', 'colorIdentity', 'power', 'toughness', 'loyalty', 'defense']:
                     if key in side:
                         data[card_name][-1][key] = side[key]
-        with open(dataPath, 'w') as f:
+
+        tmp_path = dataPath + '.tmp'
+        with open(tmp_path, 'w') as f:
             json.dump(data, f)
+        os.replace(tmp_path, dataPath)
+    except Exception:
+        pass
+    finally:
+        _allcards_refresh_lock.release()
+
+
+@app.route("/mtg/gauntlet")
+def mtg_gauntlet():
+    dataPath = os.path.join(
+        basedir,
+        url_for('static', filename='AllCards.json')[1:]
+    )
+
+    exists = os.path.exists(dataPath)
+    stale = (
+        not exists
+        or (datetime.datetime.now() - datetime.datetime.fromtimestamp(os.path.getmtime(dataPath)))
+        >= datetime.timedelta(days=1)
+    )
+
+    if stale:
+        if exists:
+            threading.Thread(
+                target=_fetch_allcards_data, args=(dataPath,), daemon=True
+            ).start()
+        else:
+            _fetch_allcards_data(dataPath)
 
     return render_template('mtg_gauntlet.html')
 
