@@ -417,6 +417,111 @@
             transform: scale(1.1);
         }
     }
+
+    @media print {
+        @page {
+            size: landscape;
+            margin: 1.3cm;
+        }
+
+        html, body {
+            background: #fff !important;
+            min-height: 0 !important;
+        }
+
+        .mtg-page.mtg-page-deck {
+            max-width: 100% !important;
+            padding: 0.5cm 0 0 0.7cm !important;
+            color: #000;
+            box-sizing: border-box;
+        }
+
+        .mtg-topbar,
+        .mtg-crumb,
+        .mana-strip {
+            display: none !important;
+        }
+
+        .mtg-header h1,
+        .mtg-header p {
+            color: #000 !important;
+        }
+
+        .column-header {
+            color: #000 !important;
+        }
+
+        .sideboard-box .column-header {
+            padding-left: 0.4cm !important;
+            justify-content: flex-start !important;
+            text-align: left !important;
+        }
+
+        .mtg-badge {
+            color: #000 !important;
+            background: rgba(0, 0, 0, 0.08) !important;
+        }
+
+        .sideboard-box,
+        .sideboard-horizontal::before {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            background: #f0f0f0 !important;
+            border: 1px solid #999 !important;
+            box-shadow: none !important;
+        }
+
+        .card-group img,
+        .sideboard-card-item img {
+            box-shadow: none !important;
+        }
+
+        .deck-grid {
+            display: grid !important;
+            grid-template-columns: repeat(4, 5.95cm) !important;
+            column-gap: 0.4cm !important;
+            row-gap: 1cm !important;
+            justify-content: start;
+        }
+
+        .sideboard-column {
+            display: block !important;
+        }
+
+        .sideboard-horizontal-header,
+        .sideboard-horizontal {
+            display: none !important;
+        }
+
+        .card-column,
+        .sideboard-box {
+            break-inside: avoid;
+        }
+
+        .card-group a {
+            width: 2.38cm !important;
+            flex-basis: 2.38cm !important;
+            margin-right: -1.19cm !important;
+        }
+
+        .card-group a:last-child {
+            margin-right: 0 !important;
+        }
+
+        .card-group {
+            margin-bottom: -1.547cm !important;
+        }
+
+        .card-column > .card-group:last-child,
+        .sideboard-box > .card-group:last-child {
+            margin-bottom: 0 !important;
+        }
+
+        .card-group img,
+        .sideboard-card-item img {
+            transform: none !important;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -437,7 +542,7 @@
                     src="{{ card.small_img }}"
                     data-hires="{{ card.normal_img }}"
                     alt="{{ card.name }}"
-                    loading="lazy"
+                    loading="eager"
                     decoding="async"
                     onmouseenter="this.src=this.dataset.hires"
                 /></a>
@@ -458,7 +563,7 @@
                         src="{{ group_card.small_img }}"
                         data-hires="{{ group_card.normal_img }}"
                         alt="{{ group_card.name }}"
-                        loading="lazy"
+                        loading="eager"
                         decoding="async"
                         onmouseenter="this.src=this.dataset.hires"
                     /></a>
@@ -480,7 +585,7 @@
                     src="{{ card.small_img }}"
                     data-hires="{{ card.normal_img }}"
                     alt="{{ card.name }}"
-                    loading="lazy"
+                    loading="eager"
                     decoding="async"
                     onmouseenter="this.src=this.dataset.hires"
                 />
@@ -517,6 +622,12 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+});
+
+window.addEventListener('beforeprint', function () {
+    document.body.style.display = 'none';
+    void document.body.offsetHeight;
+    document.body.style.display = '';
 });
 </script>
 {% endblock %}
