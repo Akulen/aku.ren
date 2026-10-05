@@ -149,6 +149,14 @@ main::after {
     margin: 10px 0 20px;
 }
 
+.table.cv .table-heading {
+    font-size: 1.75em;
+    font-weight: 500;
+    line-height: 1.2;
+    margin-bottom: .5rem;
+    display: block;
+}
+
 .table.cv tbody td, .table.cv th {
     padding: 0.25rem 0.75rem;
     border: none;
