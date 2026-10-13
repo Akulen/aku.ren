@@ -1,22 +1,87 @@
-{% extends "simple_base.html" %}
+{% extends "mtg_base.html" %}
 
-{% block title %}MtG - Random{% endblock %}
+{% block subtitle %}Random{% endblock %}
 
-{% block main %}
-    <img id="pic" src="#" alt="card_image" style="visibility: hidden;">
-    <script>
-        const api = "https://api.scryfall.com/cards/random?q=lang:{{ lang }}";
+{% block mtg_title %}Random{% endblock %}
+{% block mtg_subtitle %}A random card in:{% endblock %}
 
-        document.body.onload = function() {
-            let xhr = new XMLHttpRequest();
-            xhr.open("GET", api, true);
-            xhr.addEventListener("load", function() {
-                const response = JSON.parse(xhr.response);
-                document.getElementById("pic").src = response.image_uris.large;
-                document.getElementById("pic").alt = response.name;
-                document.getElementById("pic").style.visibility = "visible";
+{% block mtg_extrahead %}
+<style>
+#pic {
+    border-radius: 4.75% / 3.5%;
+    width: 336px;
+    height: 468px;
+}
+
+#pic.blurred {
+    filter: blur(5px);
+    transform: scale(1.01);
+}
+
+.content {
+    display: flex;
+    justify-content: center;
+}
+</style>
+{% endblock %}
+
+{% block mtg_content %}
+<div class="mtg-pills">
+    {% for l, full in dict(
+        en='English',
+        fr='French',
+        it='Italian',
+        ja='Japanese',
+        es='Spanish',
+        de='German',
+        pt='Portuguese',
+        ko='Korean',
+        ru='Russian',
+        zhs='Simplified Chinese',
+        zht='Traditional Chinese',
+        ph='Phyrexian',
+        qya='Quenya',
+        dw='Dwarvish',
+        tlh='Klingon',
+    ).items() %}
+    <a
+        class="mtg-pill{% if lang == l %} active{% endif %}"
+        href="{{ url_for('mtg_random', lang=l) }}"
+        >{{ full }}</a>
+    {% endfor %}
+</div>
+
+<div class="content">
+    <img id="pic" src="https://media.wizards.com/2018/images/daily/vPBiiLN6eG.png" alt="card_image" style="object-position: center -2px;">
+</div>
+
+<script>
+    const api = "https://api.scryfall.com/cards/random?q=lang:{{ lang }}";
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    async function randomCard() {
+        let xhr = new XMLHttpRequest();
+        xhr.open("GET", api, true);
+        await sleep(500);
+        xhr.addEventListener("load", function() {
+            const response = JSON.parse(xhr.response);
+            pic = document.getElementById("pic");
+            pic.addEventListener("load", function onImageDownloaded() {
+                pic.style.removeProperty("object-position");
+                pic.removeEventListener("load", onImageDownloaded);
+                pic.classList.remove("blurred");
             });
-            xhr.send();
-        };
-    </script>
+            pic.src = response.image_uris.normal;
+            pic.alt = response.name;
+        });
+        xhr.send();
+    };
+
+    document.body.onload = randomCard
+    document.querySelector('.mtg-pill.active').addEventListener('click', function(event) {
+        event.preventDefault(); 
+        randomCard();
+        document.getElementById("pic").classList.add("blurred");
+    });
+</script>
 {% endblock %}

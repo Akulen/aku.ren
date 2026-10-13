@@ -1,11 +1,9 @@
 {% extends "mtg_base.html" %}
 
-{% block title %}Gauntlet{% endblock %}
+{% block subtitle %}Gauntlet{% endblock %}
 
 {% block mtg_title %}Gauntlet{% endblock %}
 {% block mtg_subtitle %}Generate multi-deck proxies for playtesting.{% endblock %}
-
-{% block mtg_page_class %} mtg-page-deck{% endblock %}
 
 {% block mtg_extrahead %}
     <link rel="stylesheet" href="{{ url_for('static', filename='tribute/dist/tribute.css') }}" />

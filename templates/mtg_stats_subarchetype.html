@@ -1,0 +1,47 @@
+{% extends "mtg_base.html" %}
+
+{% block title %} Metagame Stats - Legacy - {{ subarchetype }}{% endblock %}
+
+{% block mtg_crumb %}
+<a class="mtg-crumb" href="{{ url_for('mtg_stats') }}">
+    <i class="fas fa-arrow-left" aria-hidden="true"></i>
+    Stats
+</a>
+{% endblock %}
+
+{% block mtg_title %}{{ subarchetype }}{% endblock %}
+{% block mtg_subtitle %}Matchups evolution.{% endblock %}
+
+{% block mtg_page_class %} mtg-page-stats{% endblock %}
+
+{% block mtg_extrahead %}
+<style>
+    .mtg-page.mtg-page-stats {
+        max-width: min(1900px, calc(100vh * 1.75)) !important;
+        margin: 0 auto;
+        padding-top: 0.25rem;
+        padding-bottom: 1rem;
+        box-sizing: border-box;
+    }
+
+    .chart-container {
+        margin: 0;
+        height: calc(100vh - 166px);
+    }
+</style>
+{% endblock %}
+
+{% block mtg_content %}
+<div id="chart-wr" class="chart-container"></div>
+<div id="chart-calendar" class="chart-container"></div>
+
+<script type="text/javascript" src="https://assets.pyecharts.org/assets/v6/echarts.min.js"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='MtGStats/charts.js') }}"></script>
+<script type="text/javascript">
+    var chartWR = document.getElementById('chart-wr');
+    makeWR('{{ url_for('mtg_stats_get_json_gz', subarchetype=subarchetype, name='win_rates') }}', chartWR);
+
+    var chartCal = document.getElementById('chart-calendar');
+    makeCalendar('{{ url_for('mtg_stats_get_json_gz', subarchetype=subarchetype, name='calendar') }}', chartCal);
+</script>
+{% endblock %}

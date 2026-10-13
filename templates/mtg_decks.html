@@ -1,6 +1,6 @@
 {% extends "mtg_base.html" %}
 
-{% block title %}Decks{% endblock %}
+{% block subtitle %}Decks{% endblock %}
 
 {% block mtg_title %}Decks{% endblock %}
 {% block mtg_subtitle %}Browse my past decklists.{% endblock %}
@@ -10,7 +10,7 @@
     {% for f in formats %}
     <a
         class="mtg-pill{% if format == f or (f == 'Any' and not format) %} active{% endif %}"
-        href="{{ url_for('mtg_decks', format=None if f == 'Any' else f) }}"
+        href="{{ url_for('mtg_decks', format=f) }}"
         >{{ f }}</a>
     {% endfor %}
 </div>

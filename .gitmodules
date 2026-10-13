@@ -4,3 +4,6 @@
 [submodule "MtGGauntlet"]
 	path = MtGGauntlet
 	url = git@github.com:Akulen/MtGGauntlet.git
+[submodule "MtGStats"]
+	path = MtGStats
+	url = git@github.com:Akulen/MtGStats.git

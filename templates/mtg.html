@@ -1,6 +1,6 @@
 {% extends "mtg_base.html" %}
 
-{% block title %}MtG Hub{% endblock %}
+{% block subtitle %}Hub{% endblock %}
 
 {% block mtg_crumb %}{% endblock %}
 
@@ -96,7 +96,7 @@
         <p>Track targeted purchases and desired singles.</p>
     </a> -->
 
-    <div class="mtg-card mtg-card-disabled">
+    <a class="mtg-card" href="{{ url_for('mtg_stats') }}">
         <div class="mtg-card-header">
             <div class="mtg-card-title">
                 <span class="mtg-card-icon"><i class="fas fa-chart-line" aria-hidden="true"></i></span>
@@ -104,8 +104,8 @@
             </div>
             <span class="mtg-badge">WIP</span>
         </div>
-        <p>Tools to analyze metagames.</p>
-    </div>
+        <p>Tools to analyze metagames. (Legacy only)</p>
+    </a>
 </nav>
 {% endblock %}
 

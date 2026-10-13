@@ -7,7 +7,9 @@ import threading
 import time
 from sqlalchemy.sql import func
 from PIL import Image, UnidentifiedImageError
-from flask import redirect, render_template, send_from_directory, url_for
+from flask import (
+    make_response, redirect, render_template, send_from_directory, url_for
+)
 
 from app import app, db, basedir
 
@@ -395,6 +397,7 @@ def mtg_decks(format, year, month, day):
     if month and not month.isnumeric():
         month = f'{list(calendar.month_abbr).index(month):02}'
     formats = {'Any'}
+    if format == 'Any': format = None
     for deck in decks:
         if deck[-3:] != '.mf':
             continue
@@ -492,16 +495,16 @@ def mtg_get_deck(format, year, month, day, name):
             entries.append((qty, MtGDecks(
                 name=card_name, ext=ext[1:-1], collector_number=cn, quantity=qty
             )))
- 
+
     all_entries = main_entries + sideboard_entries
     resolved = get_scryfall([card for _, card in all_entries])
- 
+
     def expand(entries, resolved_slice):
         cards = []
         for (qty, _), card in zip(entries, resolved_slice):
             cards.extend([card] * qty)
         return cards
- 
+
     deck['main'] = expand(main_entries, resolved[:len(main_entries)])
     deck['sideboard'] = expand(sideboard_entries, resolved[len(main_entries):])
     return render_template('mtg_deck.html', deck=deck)
@@ -536,3 +539,29 @@ def mtg_wish(deck=None):
             return render_template('mtg_wish.html', deck=deck)
     return redirect(url_for('mtg_wish_list'))
 
+@app.route("/mtg/stats")
+def mtg_stats():
+    path = os.path.join(basedir, 'MtGStats/charts/data/taxonomy.json')
+    if not os.path.exists(path):
+        archetypes = {}
+    else:
+        with open(path) as f:
+            archetypes = json.load(f)
+
+    return render_template('mtg_stats.html', archetypes=archetypes)
+
+@app.route("/mtg/stats/<subarchetype>/<name>.json")
+def mtg_stats_get_json_gz(subarchetype, name):
+    response = make_response(send_from_directory(
+        f'MtGStats/charts/data/{subarchetype}', f'{name}.json.gz'
+    ))
+    response.headers['Content-Encoding'] = 'gzip'
+    response.headers['Content-Type'] = 'application/json'
+    
+    return response
+
+@app.route("/mtg/stats/<subarchetype>")
+def mtg_stats_subarchetype(subarchetype):
+    return render_template(
+        'mtg_stats_subarchetype.html', subarchetype=subarchetype
+    )

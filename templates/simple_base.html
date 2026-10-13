@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% block subtitle %}{% endblock subtitle %} - Tomas Rigaux{% endblock %}</title>
+    <title>{% block title %}{% block subtitle %}{% endblock %} - Tomas Rigaux{% endblock %}</title>
     <link rel="icon" href="{{ url_for('static', filename='aku.png') }}">
 
     <!-- Bootstrap CSS -->
@@ -12,16 +12,16 @@
 
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
-    {% block extrahead %}{% endblock extrahead %}
+    {% block extrahead %}{% endblock %}
 </head>
 
 <body>
-    {% block header %}{% endblock header %}
-    {% block main %}{% endblock main %}
-    {% block footer %}{% endblock footer %}
+    {% block header %}{% endblock %}
+    {% block main %}{% endblock %}
+    {% block footer %}{% endblock %}
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js" integrity="sha384-qKXV1j0HvMUeCBQ+QVp7JcfGl760yU08IQ+GpUo5hlbpg51QRiuqHAJz8+BrxE/N" crossorigin="anonymous"></script>
 
-    {% block extrabody %}{% endblock extrabody %}
+    {% block extrabody %}{% endblock %}
 </body>
 </html>
