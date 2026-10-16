@@ -29,15 +29,16 @@
         height: calc(100vh - 166px);
     }
 </style>
+<link rel="stylesheet" href="{{ url_for('static', filename='MtGStats/charts.css') }}">
 {% endblock %}
 
 {% block mtg_content %}
 <div id="chart-wr" class="chart-container"></div>
 <div id="chart-calendar" class="chart-container"></div>
 
-<script type="text/javascript" src="https://assets.pyecharts.org/assets/v6/echarts.min.js"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='MtGStats/charts.js') }}"></script>
-<script type="text/javascript">
+<script src="https://assets.pyecharts.org/assets/v6/echarts.min.js"></script>
+<script type="module">
+    import { makeWR, makeCalendar } from '{{ url_for('static', filename='MtGStats/charts.js') }}';
     var chartWR = document.getElementById('chart-wr');
     makeWR('{{ url_for('mtg_stats_get_json_gz', subarchetype=subarchetype, name='win_rates') }}', chartWR);
 
