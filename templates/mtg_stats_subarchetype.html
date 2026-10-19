@@ -15,21 +15,8 @@
 {% block mtg_page_class %} mtg-page-stats{% endblock %}
 
 {% block mtg_extrahead %}
-<style>
-    .mtg-page.mtg-page-stats {
-        max-width: min(1900px, calc(100vh * 1.75)) !important;
-        margin: 0 auto;
-        padding-top: 0.25rem;
-        padding-bottom: 1rem;
-        box-sizing: border-box;
-    }
-
-    .chart-container {
-        margin: 0;
-        height: max(500px, calc(100vh - 166px));
-    }
-</style>
-<link rel="stylesheet" href="{{ url_for('static', filename='MtGStats/charts.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='mtg.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='MtGStats/charts.css') }}">
 {% endblock %}
 
 {% block mtg_content %}
@@ -40,9 +27,9 @@
 <script type="module">
     import { makeWR, makeCalendar } from '{{ url_for('static', filename='MtGStats/charts.js') }}';
     var chartWR = document.getElementById('chart-wr');
-    makeWR('{{ url_for('mtg_stats_get_json_gz', subarchetype=subarchetype, name='win_rates') }}', chartWR);
+    makeWR('{{ url_for('mtg_stats_get_sa_json_gz', subarchetype=subarchetype, name='win_rates') }}', chartWR, 100, 10);
 
     var chartCal = document.getElementById('chart-calendar');
-    makeCalendar('{{ url_for('mtg_stats_get_json_gz', subarchetype=subarchetype, name='calendar') }}', chartCal);
+    makeCalendar('{{ url_for('mtg_stats_get_sa_json_gz', subarchetype=subarchetype, name='calendar') }}', chartCal);
 </script>
 {% endblock %}

@@ -110,9 +110,9 @@ def get_scryfall(cards):
     cards = [c for c in cards if c.quantity >= 1]
     if not cards:
         return []
- 
+
     keys = list(map(_cache_key, cards))
- 
+
     filters = [
         (MtGCards.name == n) & (MtGCards.ext == e) & (MtGCards.lang == l) &
         (MtGCards.frame == fr) & (MtGCards.frame_effects == fe) &
@@ -124,7 +124,7 @@ def get_scryfall(cards):
         _cache_key(row): row
         for row in MtGCards.query.filter(db.or_(*filters)).all()
     }
- 
+
     stale_cutoff = datetime.datetime.now() - datetime.timedelta(days=30)
     to_refresh = {}
     for card, key in zip(cards, keys):
@@ -133,9 +133,9 @@ def get_scryfall(cards):
         row = cached.get(key)
         if row is None or row.updated_at < stale_cutoff:
             to_refresh[key] = card
- 
+
     db_updated = False
- 
+
     if to_refresh:
         # Cards with a set + collector number and no extra filters can
         # be resolved in bulk via Scryfall's collection endpoint
@@ -150,7 +150,7 @@ def get_scryfall(cards):
         ]
         batchable_keys = {key for key, _ in batchable}
         singles = [item for item in to_refresh.items() if item[0] not in batchable_keys]
- 
+
         for i in range(0, len(batchable), 75):
             chunk = batchable[i:i + 75]
             identifiers = [
@@ -177,7 +177,7 @@ def get_scryfall(cards):
                     continue
                 cached[key] = _apply_scryfall_data(cached.get(key), card, data)
                 db_updated = True
- 
+
         for key, card in singles:
             time.sleep(0.5)  # Avoid overloading Scryfall API
             request = 'https://api.scryfall.com/cards/search?q=!"' + card.name + '"'
@@ -539,6 +539,22 @@ def mtg_wish(deck=None):
             return render_template('mtg_wish.html', deck=deck)
     return redirect(url_for('mtg_wish_list'))
 
+def get_json_gz(directory, filename):
+    print(f'[{directory}] [{filename}]')
+    response = make_response(send_from_directory(
+        directory, f'{filename}.json.gz'
+    ))
+    response.headers['Content-Encoding'] = 'gzip'
+    response.headers['Content-Type'] = 'application/json'
+
+    return response
+
+@app.route("/mtg/stats/<name>.json")
+def mtg_stats_get_json_gz(name):
+    return get_json_gz(
+        f'MtGStats/charts/data/', name
+    )
+
 @app.route("/mtg/stats")
 def mtg_stats():
     path = os.path.join(basedir, 'MtGStats/charts/data/taxonomy.json')
@@ -551,14 +567,10 @@ def mtg_stats():
     return render_template('mtg_stats.html', archetypes=archetypes)
 
 @app.route("/mtg/stats/<subarchetype>/<name>.json")
-def mtg_stats_get_json_gz(subarchetype, name):
-    response = make_response(send_from_directory(
-        f'MtGStats/charts/data/{subarchetype}', f'{name}.json.gz'
-    ))
-    response.headers['Content-Encoding'] = 'gzip'
-    response.headers['Content-Type'] = 'application/json'
-    
-    return response
+def mtg_stats_get_sa_json_gz(subarchetype, name):
+    return get_json_gz(
+        f'MtGStats/charts/data/{subarchetype}', name
+    )
 
 @app.route("/mtg/stats/<subarchetype>")
 def mtg_stats_subarchetype(subarchetype):
