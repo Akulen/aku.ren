@@ -13,21 +13,22 @@
 {% endblock %}
 
 {% block mtg_content %}
-<div id="chart-wr" class="chart-container"></div>
+<div id="chart-wr" class="chart-container" style="margin-bottom: 50px;"></div>
 
 {%- macro pct(x) -%}{% if x is not none %}{{ '%.1f'|format(x * 100) }}%{% else %}-{% endif %}{%- endmacro -%}
-{%- set minor_threshold = 0.01 %}
+{%- set minor_threshold = 0.005 %}
 
 <div class="sub-index">
     <input id="sub-index-search" class="sub-index-search" type="search"
-           placeholder="Filter decks or archetypes..." autocomplete="off" aria-label="Filter decks">
+           placeholder="Filter decks or archetypes..." autocomplete="off"
+           aria-label="Filter decks">
     <div class="sub-cols">
             <span>Deck</span>
-            <span>(real) share</span><!-- Predicted WIP -->
-            <span>Expected win rate</span>
+            <span>Predicted share</span>
+            <span>Expected win rate</span><!-- Expected WIP -->
             <span class="doubles"></span>
             <span class="doubles">Deck</span>
-            <span class="doubles">(real) share</span>
+            <span class="doubles">Predicted share</span>
             <span class="doubles">Expected win rate</span>
     </div>
 
@@ -37,13 +38,16 @@
         <div class="sub-group">
             <div class="sub-group-header">
                 <span>{{ archetype }}</span>
-                <span>{{ pct(subarchetypes.share) }}</span>
-                <span></span>
+                <span class="a-share"><!--{{ pct(subarchetypes.share) }}--></span>
+                <span class="a-wr"></span>
             </div>
+            <div class="sub-group-rows">
             {% for subarchetype, data in subarchetypes.sas.items() %}
                 {% set minor = data.share < minor_threshold %}
                 {% if minor %}{% set ns.group_minor = ns.group_minor + 1 %}{% endif %}
-                <a class="sub-row{% if minor %} sub-row-minor{% endif %}" {% if minor %}hidden{% endif %}
+                <a id="{{ subarchetype | replace(' ', '_') }}" class="sub-row
+                   {% if minor %}sub-row-minor{% endif %}"
+                   {% if minor %}hidden{% endif %}
                    href="{{ url_for('mtg_stats_subarchetype', subarchetype=subarchetype) }}"
                    data-name="{{ subarchetype|lower }}" data-group="{{ archetype|lower }}">
                     <span class="sub-name">{{ subarchetype }}</span>
@@ -51,6 +55,7 @@
                     <span class="sub-wr">-% <span class="sub-ci">[-%&ndash;-%]</span></span>
                 </a>
             {% endfor %}
+            </div>
             {% if ns.group_minor %}
             <button type="button" class="sub-expand" data-expand-group>Show {{ ns.group_minor }} more (under {{ pct(minor_threshold) }} share)</button>
             {%- endif %}
@@ -62,9 +67,75 @@
 
 <script src=" https://cdn.jsdelivr.net/npm/echarts@6.1.0/dist/echarts.min.js "></script>
 <script type="module">
-    import { makeWR } from '{{ url_for('static', filename='MtGStats/charts.js') }}';
+    import { makeWR, getSC, pct } from '{{ url_for('static', filename='MtGStats/charts.js') }}';
     var chartWR = document.getElementById('chart-wr');
     makeWR('{{ url_for('mtg_stats_get_json_gz', name='win_rates') }}', chartWR, 10000, 100);
+
+    const MINOR_THRESHOLD = {{ minor_threshold }};
+
+    getSC(
+        '{{ url_for('mtg_stats_get_json_gz', name='match_count') }}',
+        function(shares) {
+            const container = document.querySelector('.sub-groups');
+            const groupEls = Array.from(container.querySelectorAll('.sub-group'));
+
+            const groupData = groupEls.map(groupEl => {
+                const rowContainer = groupEl.querySelector('.sub-group-rows');
+                const rowEls = Array.from(rowContainer.querySelectorAll('.sub-row'));
+                let groupShareSum = 0;
+                let groupLoSum = 0;
+                let groupHiSum = 0;
+                let minorCount = 0;
+
+                const processedRows = rowEls.map(rowEl => {
+                    const sa = rowEl.id;
+                    // Find matching key case-insensitively
+                    const data = shares[sa.replaceAll('_', ' ')] ?? null;
+                    const share = data ? (data.s || 0) : 0;
+
+                    if(data)
+                        rowEl.querySelector('.sub-share').innerHTML =
+                            `${pct(1)(data.s)} <span class="sub-ci">[${pct(1)(data.lo)}&ndash;${pct(1)(data.hi)}]</span>`;
+
+                    groupShareSum += share;
+                    groupLoSum += data.lo;
+                    groupHiSum += data.hi;
+
+                    const isMinor = share < MINOR_THRESHOLD;
+                    rowEl.classList.toggle('sub-row-minor', isMinor);
+                    if (isMinor) {
+                        rowEl.hidden = true;
+                        minorCount++;
+                    } else
+                        rowEl.hidden = false;
+
+                    return { el: rowEl, share: share };
+                });
+
+                processedRows.sort((a, b) => b.share - a.share);
+                processedRows.forEach(({ el }) => rowContainer.appendChild(el));
+
+                const headerShareEl = groupEl.querySelector('.a-share');
+                if(headerShareEl) {
+                    headerShareEl.innerHTML = `${pct(1)(groupShareSum)} <span class="sub-ci">[${pct(1)(groupLoSum)}&ndash;${pct(1)(groupHiSum)}]</span>`;
+                }
+
+                const expandBtn = groupEl.querySelector('[data-expand-group]');
+                if(expandBtn) {
+                    if(minorCount > 0) {
+                        expandBtn.textContent = `Show ${minorCount} more (under ${pct(1)(MINOR_THRESHOLD)} share)`;
+                        expandBtn.hidden = false;
+                    } else
+                        expandBtn.hidden = true;
+                }
+
+                return { el: groupEl, totalShare: groupShareSum };
+            });
+
+            groupData.sort((a, b) => b.totalShare - a.totalShare);
+            groupData.forEach(({ el }) => container.appendChild(el));
+        }
+    );
 </script>
 <script>
 (function () {
