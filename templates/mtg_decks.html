@@ -29,10 +29,30 @@
         <ul class="mtg-list">
             {% for day, day_decks in days.items() %}
                 {% set day_url = url_for('mtg_decks', year=year, month=month, day=day, format=format) %}
-                {% for link, f, deck in day_decks %}
+                {% for link, f, deck, guide, coverage in day_decks %}
                 <li class="mtg-list-row">
                     <a class="mtg-list-day" href="{{ day_url }}">{% if loop.first %}{{ day }}{% endif %}</a>
                     <a class="mtg-list-name" href="{{ link }}">{{ deck }}</a>
+                    <span class="mtg-list-guide">
+                        {% if guide %}
+                        <span class="mtg-guide-badge"
+                              {% if coverage is not none %}
+                              style="--cov: {{ coverage }}"
+                              title="Sideboard guide covers {{ (coverage * 100) | round | int }}% of the expected metagame"
+                              {% else %}
+                              title="Sideboard guide available"
+                              {% endif %}>
+                            <svg class="mtg-guide-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z M4 21V5 M8 7h6 M8 11h6"/>
+                            </svg>
+                            <span class="visually-hidden">Sideboard guide</span>
+                            {% if coverage is not none %}
+                            <span class="mtg-guide-bar" aria-hidden="true"></span>
+                            <span class="mtg-guide-pct">{{ (coverage * 100) | round | int }}%</span>
+                            {% endif %}
+                        </span>
+                        {% endif %}
+                    </span>
                     {% if f %}
                     <a class="mtg-list-tag" href="{{ url_for('mtg_decks', format=f) }}">[{{ f }}]</a>
                     {% endif %}

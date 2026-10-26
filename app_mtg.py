@@ -435,6 +435,8 @@ def mtg_decks(format, year, month, day):
             ),
             deck_format,
             deck_name.replace('_', ' '),
+            (deck[:-2] + 'sg') in decks,
+            None # TODO
         ))
     decks_list = sort_decks(decks_list)
     formats = sorted(formats)
@@ -459,8 +461,8 @@ for i in range(2 ** len(fields)):
 
 @app.route('/mtg/decks/<format>/<year>/<month>/<day>/<name>')
 def mtg_get_deck(format, year, month, day, name):
-    deck_file = f"static/mtg/decks/{format}_{year}-{month}-{day}_{name}.mf"
-    if not os.path.exists(os.path.join(basedir, deck_file)):
+    deck_file = f"static/mtg/decks/{format}_{year}-{month}-{day}_{name}"
+    if not os.path.exists(os.path.join(basedir, f'{deck_file}.mf')):
         return redirect(url_for(
             'mtg_decks', format=format, year=year, month=month, day=day
         ))
@@ -480,7 +482,7 @@ def mtg_get_deck(format, year, month, day, name):
     main_entries = []
     sideboard_entries = []
     entries = main_entries
-    with open(os.path.join(basedir, deck_file), 'r') as f:
+    with open(os.path.join(basedir, f'{deck_file}.mf'), 'r') as f:
         for line in f.readlines():
             if line == 'SIDEBOARD:\n':
                 entries = sideboard_entries
@@ -507,7 +509,18 @@ def mtg_get_deck(format, year, month, day, name):
 
     deck['main'] = expand(main_entries, resolved[:len(main_entries)])
     deck['sideboard'] = expand(sideboard_entries, resolved[len(main_entries):])
-    return render_template('mtg_deck.html', deck=deck)
+
+    sideboard_guide = {}
+    sa = None
+    if os.path.exists(os.path.join(basedir, f'{deck_file}.sg')):
+        with open(os.path.join(basedir, f'{deck_file}.sg'), 'r') as f:
+            res = json.load(f)
+            sideboard_guide = res['guide']
+            sa = res['subarchetype']
+
+    return render_template(
+        'mtg_deck.html', deck=deck, guide=sideboard_guide, sa=sa
+    )
 
 @app.route("/mtg/wishlist")
 def mtg_wish_list():

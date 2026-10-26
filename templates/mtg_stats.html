@@ -8,7 +8,6 @@
 {% block mtg_page_class %} mtg-page-stats{% endblock %}
 
 {% block mtg_extrahead %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='mtg.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='MtGStats/charts.css') }}">
 {% endblock %}
 
@@ -67,7 +66,8 @@
 
 <script src=" https://cdn.jsdelivr.net/npm/echarts@6.1.0/dist/echarts.min.js "></script>
 <script type="module">
-    import { makeWR, getSC, pct } from '{{ url_for('static', filename='MtGStats/charts.js') }}';
+    import { makeWR, getSC } from '{{ url_for('static', filename='MtGStats/charts.js') }}';
+    import { pct } from '{{ url_for('static', filename='MtGStats/utils.js') }}';
     var chartWR = document.getElementById('chart-wr');
     makeWR('{{ url_for('mtg_stats_get_json_gz', name='win_rates') }}', chartWR, 10000, 100);
 
