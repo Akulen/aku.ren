@@ -148,6 +148,7 @@ position: relative;
         {% endfor %}
     </select>
     <div class="mtg-guide-stats"></div>
+    <div class="mtg-guide-coverage"></div>
 </div>
 <section id="guide-remarks"></section>
 {% endif %}
@@ -376,5 +377,31 @@ position: relative;
             data[opp] = { wr: s, lo: low, hi };
         });
     });
+
+    Utils.getSC(
+        '{{ url_for('mtg_stats_get_json_gz', name='match_count') }}',
+        function(shares) {
+            const coveredList = Object.keys(guide);
+            const share = Utils.sum(coveredList.map(
+                entry => shares[entry]?.s || 0
+            ));
+            const lo = Utils.sum(coveredList.map(
+                entry => shares[entry]?.lo || 0
+            ));
+            const hi = Utils.sum(coveredList.map(
+                entry => shares[entry]?.hi || 0
+            ));
+            const sharesList = Object.keys(shares);
+            sharesList.sort((a, b) => shares[b].s - shares[a].s);
+            const covered = new Set(coveredList);
+            const gap = sharesList.find(item => !covered.has(item));
+            console.log(share, lo, hi, gap, shares[gap]);
+            document.querySelector('.mtg-guide-coverage').innerHTML =
+                `E[Cov] = ${Utils.pct(1)(share)}
+                 <span class="sub-ci">[${Utils.pct(1)(lo)}&ndash;${Utils.pct(1)(hi)}]</span><br/>
+                 Largest gap (~${Utils.pct(1)(shares[gap].s)}):<br/>
+                 ${gap}`;
+        }
+    );
 </script>
 {% endblock %}

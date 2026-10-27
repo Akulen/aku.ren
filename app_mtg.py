@@ -424,6 +424,14 @@ def mtg_decks(format, year, month, day):
             decks_list[cur_year][cur_month] = {}
         if cur_day not in decks_list[cur_year][cur_month]:
             decks_list[cur_year][cur_month][cur_day] = []
+        has_sg = os.path.exists(os.path.join(basedir, f'static/mtg/decks/{deck[:-3]}.sg'))
+        sa = None
+        guides = []
+        if has_sg:
+            with open(os.path.join(basedir, f'static/mtg/decks/{deck[:-3]}.sg'), 'r') as f:
+                res = json.load(f)
+                guides = list(res['guide'].keys())
+                sa = res['subarchetype']
         decks_list[cur_year][cur_month][cur_day].append((
             url_for(
                 'mtg_get_deck',
@@ -436,7 +444,8 @@ def mtg_decks(format, year, month, day):
             deck_format,
             deck_name.replace('_', ' '),
             (deck[:-2] + 'sg') in decks,
-            None # TODO
+            sa,
+            guides
         ))
     decks_list = sort_decks(decks_list)
     formats = sorted(formats)
@@ -553,7 +562,6 @@ def mtg_wish(deck=None):
     return redirect(url_for('mtg_wish_list'))
 
 def get_json_gz(directory, filename):
-    print(f'[{directory}] [{filename}]')
     response = make_response(send_from_directory(
         directory, f'{filename}.json.gz'
     ))

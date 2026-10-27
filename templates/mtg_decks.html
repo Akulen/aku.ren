@@ -29,27 +29,21 @@
         <ul class="mtg-list">
             {% for day, day_decks in days.items() %}
                 {% set day_url = url_for('mtg_decks', year=year, month=month, day=day, format=format) %}
-                {% for link, f, deck, guide, coverage in day_decks %}
-                <li class="mtg-list-row">
+                {% for link, f, deck, guide, sa, opps in day_decks %}
+                <li class="mtg-list-row" {% if sa %}id="{{ sa|replace(' ', '_') }}"{% endif %}>
                     <a class="mtg-list-day" href="{{ day_url }}">{% if loop.first %}{{ day }}{% endif %}</a>
                     <a class="mtg-list-name" href="{{ link }}">{{ deck }}</a>
                     <span class="mtg-list-guide">
                         {% if guide %}
                         <span class="mtg-guide-badge"
-                              {% if coverage is not none %}
-                              style="--cov: {{ coverage }}"
-                              title="Sideboard guide covers {{ (coverage * 100) | round | int }}% of the expected metagame"
-                              {% else %}
-                              title="Sideboard guide available"
-                              {% endif %}>
+                              data-entries='{{ opps | tojson }}'
+                              title="Sideboard guide available">
                             <svg class="mtg-guide-icon" viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z M4 21V5 M8 7h6 M8 11h6"/>
                             </svg>
                             <span class="visually-hidden">Sideboard guide</span>
-                            {% if coverage is not none %}
-                            <span class="mtg-guide-bar" aria-hidden="true"></span>
-                            <span class="mtg-guide-pct">{{ (coverage * 100) | round | int }}%</span>
-                            {% endif %}
+                            <span class="mtg-guide-bar" aria-hidden="true" hidden></span>
+                            <span class="mtg-guide-pct" hidden></span>
                         </span>
                         {% endif %}
                     </span>
@@ -66,4 +60,34 @@
 {% else %}
 <p class="mtg-empty">No decks to show{% if format %} for format “{{ format }}”{% endif %}.</p>
 {% endif %}
+
+<script src=" https://cdn.jsdelivr.net/npm/echarts@6.1.0/dist/echarts.min.js "></script>
+<script type="module">
+    import { pct, sum, getSC } from '{{ url_for('static', filename='MtGStats/utils.js') }}';
+
+    getSC(
+        '{{ url_for('mtg_stats_get_json_gz', name='match_count') }}',
+        function(shares) {
+            document.querySelectorAll('.mtg-list-row').forEach(el => {
+                const badge = el.querySelector('.mtg-guide-badge');
+                if(!badge) return;
+                const share = sum(JSON.parse(badge.dataset.entries).map(
+                    entry => shares[entry]?.s || 0
+                ));
+                const lo = sum(JSON.parse(badge.dataset.entries).map(
+                    entry => shares[entry]?.lo || 0
+                ));
+                const hi = sum(JSON.parse(badge.dataset.entries).map(
+                    entry => shares[entry]?.hi || 0
+                ));
+                badge.style.setProperty('--cov', share);
+                badge.title = `Sideboard guide covers ${pct(1)(share)} [${pct(1)(lo)}–${pct(1)(hi)}] of the expected metagame`;
+                badge.querySelector('.mtg-guide-bar').removeAttribute('hidden');
+                badge.querySelector('.mtg-guide-pct').removeAttribute('hidden');
+                badge.querySelector('.mtg-guide-pct').innerText = pct(0)(share);
+                console.log(badge, share, lo, hi);
+            });
+        }
+    );
+</script>
 {% endblock %}

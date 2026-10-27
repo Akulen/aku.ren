@@ -776,6 +776,8 @@ body {
 .mtg-guide-selector {
     position: relative;
     display: inline-block;
+    top: -25px;
+    height: 0;
 }
 
 #mtg-guide-select {
@@ -827,6 +829,16 @@ body {
 }
 
 .mtg-guide-stats:empty {
+    display: none !important;
+}
+
+.mtg-guide-coverage {
+    text-align: center;
+    margin: 5px;
+    font-size: 0.75em;
+}
+
+.mtg-guide-stats:not(:empty) + .mtg-guide-coverage {
     display: none !important;
 }
 
