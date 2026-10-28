@@ -351,6 +351,7 @@ position: relative;
             mark(els, qty, note, '#e0553f');
         });
     }
+    {% if guide %}
     document.getElementById('mtg-guide-select')
         .addEventListener('change', (event) => showGuide(event.target.value));
     Utils.fetchJSON('{{ url_for('mtg_stats_get_sa_json_gz', subarchetype=sa, name='win_rates') }}').then(raw_data => {
@@ -408,7 +409,6 @@ position: relative;
             sharesList.sort((a, b) => shares[b].s - shares[a].s);
             const covered = new Set(coveredList);
             const gap = sharesList.find(item => !covered.has(item));
-            console.log(share, lo, hi, gap, shares[gap]);
             document.querySelector('.mtg-guide-coverage').innerHTML =
                 `E[Cov] = ${Utils.pct(1)(share)}
                  <span class="sub-ci">[${Utils.pct(1)(lo)}&ndash;${Utils.pct(1)(hi)}]</span><br/>
@@ -416,5 +416,6 @@ position: relative;
                  ${gap}`;
         }
     );
+    {% endif %}
 </script>
 {% endblock %}
