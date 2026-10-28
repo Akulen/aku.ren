@@ -301,7 +301,11 @@ position: relative;
     function showGuide(selector) {
         clearAll();
         if(!selector) return;
-        var { remarks, sideIn, sideOut, wr, lo, hi } = (guide[selector]);
+        var values = guide[selector];
+        while(Object.hasOwn(values, "sameAs"))
+            values = guide[values.sameAs];
+        var { remarks, sideIn, sideOut, wr, lo, hi } = values;
+        var eN;
         function format(x) {
             if(x === undefined) return '-%';
             else return `${(x * 100).toFixed(1)}%`;
@@ -310,12 +314,21 @@ position: relative;
             if(wr === undefined) wr = data[selector].wr;
             if(lo === undefined) lo = data[selector].lo;
             if(hi === undefined) hi = data[selector].hi;
+            eN = data[selector].eN;
         } else { console.log(`Unknown Subarchetype: '${selector}'`) }
+        document.querySelector('#guide-remarks').innerText = remarks;
+        if(eN !== undefined && eN < 1) {
+            wr = undefined;
+            lo = undefined;
+            hi = undefined;
+        }
         wr = format(wr);
         lo = format(lo);
         hi = format(hi);
-        document.querySelector('#guide-remarks').innerText = remarks;
         document.querySelector('.mtg-guide-stats').innerHTML = `${wr} <span class="sub-ci">[${lo}&ndash;${hi}]</span>`;
+        if(eN !== undefined && eN >= 1)
+            document.querySelector('.mtg-guide-stats').innerHTML +=
+                ` (${Math.round(eN)})`;
         Object.entries(sideIn).forEach(([card, args]) => {
             var qty = args, note = "";
             if(typeof args !== "number") {
@@ -362,7 +375,7 @@ position: relative;
             const avgWR = Utils.sum(pts.map(p => p.w))
                         / Utils.sum(pts.map(p => p.w + p.l));
             const a0 = avgWR * k, b0 = (1 - avgWR) * k;
-            const { row: [, s, low, hi,] } = Utils.betaEstimateAt(
+            const { row: [, s, low, hi, eN] } = Utils.betaEstimateAt(
                 t,
                 pts,
                 eventTimes,
@@ -374,7 +387,7 @@ position: relative;
                 0,
                 0.95
             )
-            data[opp] = { wr: s, lo: low, hi };
+            data[opp] = { wr: s, lo: low, hi, eN };
         });
     });
 
