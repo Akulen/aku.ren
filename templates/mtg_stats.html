@@ -69,7 +69,7 @@
     import { makeWR } from '{{ url_for('static', filename='MtGStats/charts.js') }}';
     import { pct, getSC } from '{{ url_for('static', filename='MtGStats/utils.js') }}';
     var chartWR = document.getElementById('chart-wr');
-    makeWR('{{ url_for('mtg_stats_get_json_gz', name='win_rates') }}', chartWR, 10000, 100);
+    makeWR('{{ url_for('mtg_stats_get_json_gz', name='win_rates') }}', chartWR, 20000, 100);
 
     const MINOR_THRESHOLD = {{ minor_threshold }};
 
