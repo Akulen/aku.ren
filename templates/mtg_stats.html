@@ -75,7 +75,7 @@
 
     getSC(
         '{{ url_for('mtg_stats_get_json_gz', name='match_count') }}',
-        function(shares) {
+        function(shares, estimates) {
             const container = document.querySelector('.sub-groups');
             const groupEls = Array.from(container.querySelectorAll('.sub-group'));
 
@@ -90,12 +90,20 @@
                 const processedRows = rowEls.map(rowEl => {
                     const sa = rowEl.id;
                     // Find matching key case-insensitively
-                    const data = shares[sa.replaceAll('_', ' ')] ?? null;
+                    const saToken = sa.replaceAll('_', ' ');
+                    const data = shares[saToken] ?? null;
                     const share = data ? (data.s || 0) : 0;
+                    const datawr = estimates[saToken] ?? null;
 
                     if(data)
                         rowEl.querySelector('.sub-share').innerHTML =
                             `${pct(1)(data.s)} <span class="sub-ci">[${pct(1)(data.lo)}&ndash;${pct(1)(data.hi)}]</span>`;
+                    if(datawr)
+                        rowEl.querySelector('.sub-wr').innerHTML =
+                            `${pct(1)(datawr.mean)} <span class="sub-ci">[${pct(1)(datawr.lo)}&ndash;${pct(1)(datawr.hi)}]</span>`;
+                    if(sa === 'Izzet_Tempo') {
+                        console.log(rowEl, estimates);
+                    }
 
                     groupShareSum += share;
                     groupLoSum += data.lo;
